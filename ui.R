@@ -114,8 +114,7 @@ ga_scripts <- function (){
   tags$script(HTML(
     "$(document).on('shiny:inputchanged', function(event) {
        if (event.name === 'buttonSampleData') {
-         Shiny.setInputValue('foo', 'bar', {priority: 'event'});
-         //ga('send', 'event', 'input', 'updates', event.name, event.value);
+          gtag('event', 'sample_button_clicked'));
        }
      });
     Shiny.addCustomMessageHandler('testmsg', function(message) {
@@ -126,7 +125,7 @@ ga_scripts <- function (){
         'event_category' : 'input_data',
         'event_label' : message
       });
-      Shiny.setInputValue('foo2', message, {priority: 'event'});
+      //Shiny.setInputValue('foo2', message, {priority: 'event'});
     });
     "
   ))

@@ -90,6 +90,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$citeLink, {
     updateTabsetPanel(session, "aboutTabset", "How to cite us?")
+    #message("abddcd")
   })
   
   observeEvent(input$foo2, {
