@@ -119,11 +119,14 @@ ga_scripts <- function (){
        }
      });
     Shiny.addCustomMessageHandler('testmsg', function(message) {
-      words = message.split('-');
-      main = words[0]
-      details = words[1]
-      //Shiny.setInputValue('foo2', details, {priority: 'event'});
-      ga('send', 'event', 'upload', 'success', main, details);
+      //words = message.split('-');
+      //main = words[0];
+      //details = words[1];
+      gtag('event', 'upload_success', {
+        'event_category' : 'input_data',
+        'event_label' : message
+      });
+      Shiny.setInputValue('foo2', message, {priority: 'event'});
     });
     "
   ))
@@ -136,9 +139,9 @@ ui <- fluidPage(
     tags$link(rel="shortcut icon", href="favicon.png"),
     tags$meta(name="description", content="RoKAI: Robust Inference of Kinase Activity using functional networks"),
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
-    includeHTML(("www/google-analytics.html")),
-    ga_scripts()
+    includeHTML(("www/google-analytics.html"))
   ),
+  ga_scripts(),
   verticalLayout(
     div(
       class = "panel-heading",
