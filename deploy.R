@@ -1,5 +1,5 @@
 Sys.setenv(LANG = "en")
 library(rsconnect)
-deployApp(appTitle = "RoKAI App")
+deployApp(appName = "rokai", appTitle = "RoKAI App")
 
 

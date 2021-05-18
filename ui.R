@@ -34,8 +34,11 @@ ui <- fluidPage(
      # tags$span("", style = "font-size: 16.5px; margin-bottom:5px; padding-bottom:0px;")
     ),
   # Sidebar with a slider input for number of bins 
-  sidebarLayout(
-    sidebarPanel(
+  fluidRow(
+    column(width = 4,
+           tags$form(class = "well", style = "margin-bottom:8px;",
+ # sidebarLayout(
+#    sidebarPanel(
       #tags$div(
         tags$div(
           class = "inline-block",
@@ -82,9 +85,36 @@ ui <- fluidPage(
       checkboxInput("rokaiEnabled", "Use sites in functional neighborhood", TRUE),
       tags$hr(style = "margin: 8px 0px 8px 0px;"),
       multiChoicePicker("yaxis", "Plot Y-Axis:", c("Kinase Activity", "Z-Score"))
+    ), 
+# tags$div(
+#   class = "panel panel-default",
+#   style = "margin:0px; margin-bottom:5px;",
+#   tags$div(
+#     class = "panel-body",
+#     style = "padding-bottom:10px; padding-top:10px; margin:0px;", #  height: 78px;
+#     #tags$p(),
+#     "For questions or feature suggestions, please contact:",
+#     tags$br(),
+#     tags$a("Serhan Yilmaz", href="http://www.serhanyilmaz.com"),
+#     "<serhan.yilmaz@case.edu>"
+#   )
+# ),
+tags$div(
+  class = "panel panel-default",
+  style = "margin:0px; margin-bottom:5px;",
+  tags$div(
+    class = "panel-body",
+    style = "padding-bottom:10px; padding-top:10px; margin:0px;", #  height: 78px;
+    #tags$p(),
+    "RoKAI App is recently updated. To access the older version, please visit: ",
+    #tags$br(),
+    tags$a("http://legacy.rokai.io", href="http://legacy.rokai.io"),
+    #"<serhan.yilmaz@case.edu>"
+  )
+)
     ),
-    # Show a plot of the generated distribution
-    mainPanel(
+   # mainPanel(
+    column(width = 8,
       tabsetPanel(
         tabPanel(
           "Plot",
@@ -100,26 +130,14 @@ ui <- fluidPage(
           ), 
         )
         ,
-        # tabPanel(
-        #   "Home", 
-        #   tags$p("Stuff"),
-        #   pre(id = "console")
-        # ),
-        # tabPanel(
-        #   "About", 
-        #   tags$p("Welcome")
-        # ),
         tabPanel(
           "Kinases",
           DT::dataTableOutput("kinaseTable"),
-          #div(style = 'overflow: auto; max-height:450px;', div(style = "width: 96%", dataTableOutput("kinaseTable")))
           #div(style = 'overflow: auto; max-height:450px;', div(style = "width: 96%", dataTableOutput("kinaseTable")))
         ),
         tabPanel(
           "Kinase Targets",
           DT::dataTableOutput("kinasesubsTable"),
-          #div(style = 'overflow: auto; max-height:450px;', div(style = "width: 96%", dataTableOutput("kinaseTable")))
-          #div(style = 'overflow: auto; max-height:450px;', div(style = "width: 96%", dataTableOutput("kinaseTable")))
         )
       )
     )

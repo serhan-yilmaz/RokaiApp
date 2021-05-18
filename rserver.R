@@ -229,7 +229,6 @@ server <- function(input, output) {
       S = sd(Xv) / sqrt(nSubs)
       Z = A / S
     }
-    
     res = compute_pvalues(as.matrix(Z))
     
     K = NetworkData$Kinase
