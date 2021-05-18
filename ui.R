@@ -11,6 +11,105 @@ multiChoicePicker <- function(id, label, choices, selected = choices[1]) {
   )
 }
 
+paper_txt <- function(authors, date, title, journal, link, misc){
+  tags$div(
+    class = "inline", 
+    style = "margin-bottom: 6px; margin-top; 6px;", 
+    tags$ul(tags$li(
+      tags$text(style = "font-size: medium;", paste(authors, " (", date, ") ", sep = "")),
+      tags$text(style = "font-size: medium; font-style: italic;", title),
+      tags$a(style = "font-size: medium;", journal, href = link),
+      tags$text(style = "font-size: medium;", misc)
+    ))
+  )
+}
+
+desc_text <- function(qtxt){
+  tags$div(
+    class = "inline", 
+    style = "margin-bottom: 6px; margin-top; 6px;", 
+    tags$text(style = "font-size: medium;", qtxt)
+  )
+}
+
+about_question <- function(qtxt, atxt, href, actLink = FALSE){
+  if(actLink){
+    link <- actionLink(style = "font-size: large;", href, atxt)
+  } else {
+    link <- tags$a(style = "font-size: large;", atxt, href=href)
+  }
+  
+  tags$div(
+    class = "inline", 
+    style = "margin-bottom: 8px; margin-top; 8px;", 
+    tags$text(style = "font-size: large;", qtxt),
+    link
+  )
+}
+
+about_tab <- function(){
+  tabsetPanel(id = "aboutTabset",
+    tabPanel(
+      "Welcome",
+      tags$div(
+        class = "panel-body",
+        style = "padding-bottom:5px; padding-top:2px; margin:0px;", #  height: 78px;
+        #tags$p(),
+        tags$h3("Welcome!", style="font-weight:bold;"),
+        tags$h4(style="font-style:italic;", "RoKAI is a computational tool for inferring kinase activities in a robust manner using functional networks."),
+        
+        about_question("Using it first time? To help getting started, read our ", "User Manual", "https://github.com/serhan-yilmaz/RoKAI/raw/master/rokai_user_manual.pdf"),
+        about_question("Prefer to run locally? Download source code at ", "Github page", "https://github.com/serhan-yilmaz/Rokai"),
+        about_question("Have a quick question or need some help?", "Contact us", "contactLink", actLink = T),
+        about_question("Use RoKAI in your research?", "Please cite us", "citeLink", actLink = T),
+        about_question("Thank you for using RoKAI App!", "", ""),
+        #tags$text(style = "font-size: large;", "Have a quick question or need some help?"), tags$a(style = "font-size: large;", "Contact us", href="#chapter4"),
+        #tags$a(name = "chapter4")
+        
+        tags$text(style = "font-size: small", "* For sensitive and/or confidential files, we strongly encourage you to"),
+        tags$a(style = "font-size: small", "run the RoKAI App locally.", href = "https://github.com/serhan-yilmaz/RokaiApp"), 
+        #tags$text(style = "font-size: small", "."),
+        tags$br(), #
+        tags$text(style = "font-size: small", "** This tool is intended for educational or academic purposes and it comes with no warranty. See "),
+        tags$a(style = "font-size: small", "license", href = "https://github.com/serhan-yilmaz/RoKAI/blob/master/LICENSE"), 
+        tags$text(style = "font-size: small", "for more information.")
+      )
+    ),
+    tabPanel(
+      "Contact",
+      tags$div(
+        class = "panel-body",
+        style = "padding-bottom:5px; padding-top:2px; margin:0px;", #  height: 78px;
+        #tags$p(),
+        tags$h3("Contact", style="font-weight:bold;"),
+        desc_text("RoKAI is designed by Serhan Yilmaz and Mehmet Koyuturk at Case Western Reserve University."),
+        desc_text("If you have any questions or feature suggestions, please contact <serhan.yilmaz@case.edu>"),
+        
+        tags$h3("Acknowledgement", style="font-weight:bold;"),
+        desc_text("This work was supported by National Institute of Health (NIH) grant R01-LM012980 from the National Libraries of Medicine.")
+      )
+    ),
+    tabPanel(
+      "How to cite us?",
+      tags$div(
+        class = "panel-body",
+        style = "padding-bottom:5px; padding-top:2px; margin:0px;", #  height: 78px;
+        #tags$p(),
+        tags$h3("How to cite us?", style="font-weight:bold;"),
+        desc_text("Please cite the following paper(s) if you use RoKAI in your research:"),
+        paper_txt("Yilmaz S., Ayati M., Schlatzer D., Cicek A. E., Chance M. R., Koyuturk M.", "2021", "Robust inference of kinase activity using functional networks", "Nature Communications", "https://doi.org/10.1038/s41467-021-21211-6", "12 (1117)"),
+        
+        desc_text("RoKAI uses the following resources for functional networks:"),
+        paper_txt("Hornbeck, P. V. et al.", "2015", "Phosphositeplus, 2014: mutations, ptms and recalibrations.", "Nucleic acids research", "https://doi.org/10.1093/nar/gku1267", "43(D1), D512-D520"),
+        paper_txt("Minguez, P. et al.", "2012", "PTMcode: a database of known and predicted functional associations between post-translational modifications in proteins.", "Nucleic acids research", "https://doi.org/10.1093/nar/gks1230", "41(D1), D306-D311"),
+        paper_txt("Szklarczyk, D. et al.", "2014", "STRING v10: protein–protein interaction networks, integrated over the tree of life.", "Nucleic acids research", "https://doi.org/10.1093/nar/gku1003", "43(D1), D447-D452")
+        
+        
+      )
+    )
+  )
+}
+
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   title = "RoKAI App",
@@ -115,7 +214,11 @@ tags$div(
     ),
    # mainPanel(
     column(width = 8,
-      tabsetPanel(
+      tabsetPanel(id = "mainTabset",
+        tabPanel(
+          "About",
+          about_tab()
+        ),
         tabPanel(
           "Plot",
           plotOutput("distPlot", height = "340px"), 
@@ -130,7 +233,7 @@ tags$div(
           ), 
         )
         ,
-        tabPanel(
+        tabPanel(id = "xyz", 
           "Kinases",
           DT::dataTableOutput("kinaseTable"),
           #div(style = 'overflow: auto; max-height:450px;', div(style = "width: 96%", dataTableOutput("kinaseTable")))

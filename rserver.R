@@ -25,6 +25,8 @@ Tsample <- read.csv(paste(folder, "sample_data_uniprot_human.csv", sep=""))
 
 #T$ID = paste(T$Protein, T$Position, sep="_")
 
+
+
 withConsoleRedirect <- function(containerId, expr) {
   # Change type="output" to type="message" to catch stderr
   # (messages, warnings, and errors) instead of stdout.
@@ -37,7 +39,7 @@ withConsoleRedirect <- function(containerId, expr) {
   results
 }
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   observe({
     invalidateLater(1000)
@@ -82,9 +84,20 @@ server <- function(input, output) {
            "Uniprot Mouse" = "uniprot.mouse")
   })
   
+  observeEvent(input$contactLink, {
+    updateTabsetPanel(session, "aboutTabset", "Contact")
+  })
+  
+  observeEvent(input$citeLink, {
+    updateTabsetPanel(session, "aboutTabset", "How to cite us?")
+  })
+  
   observeEvent(input$buttonSampleData, {
     network_value("uniprot.human")
     myvalue("sample")
+    if(input$mainTabset == "About"){
+      updateTabsetPanel(session, "mainTabset", "Plot")
+    }
   })
   
   observeEvent(input$file1, {
@@ -94,6 +107,9 @@ server <- function(input, output) {
     upload_dataset()
     req(upload_dataset())
     network_value(refProteomeValue())
+    if(input$mainTabset == "About"){
+      updateTabsetPanel(session, "mainTabset", "Plot")
+    }
   })
   
   upload_dataset <- reactive({
