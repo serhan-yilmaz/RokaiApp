@@ -21,7 +21,7 @@ source("rokai_weights.R")
 
 #Wk2s = net$Wkin2site
 folder = "data/"
-Tsample <- read.csv(paste(folder, "phospho_data_c6_uniprotkb.csv", sep=""))
+Tsample <- read.csv(paste(folder, "sample_data_uniprot_human.csv", sep=""))
 
 #T$ID = paste(T$Protein, T$Position, sep="_")
 

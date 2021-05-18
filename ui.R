@@ -16,7 +16,7 @@ ui <- fluidPage(
   title = "RoKAI App",
   tags$head(
     tags$link(rel="shortcut icon", href="favicon.png"),
-    tags$meta(name="description", content="Rokai: Robust Inference of Kinase Activity using functional networks"),
+    tags$meta(name="description", content="RoKAI: Robust Inference of Kinase Activity using functional networks"),
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
   ),
   verticalLayout(
@@ -90,7 +90,7 @@ ui <- fluidPage(
           plotOutput("distPlot", height = "340px"), 
           splitLayout(
             sliderInput("minnumsubs", "Minimum number of substrates", 1, 10, 3, step = 1, width = "220px"), 
-            sliderInput("minzscore", "Minimum absolute z-score", 0, 2, 0, step = 0.05, width = "220px"),
+            sliderInput("minzscore", "Minimum absolute z-score", 0, 2, 1, step = 0.05, width = "220px"),
             tags$div(
               downloadButton('downloadKinasePlotPNG', 'Download PNG'),
               tags$br(), 
