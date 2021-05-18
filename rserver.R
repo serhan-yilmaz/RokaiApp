@@ -92,6 +92,11 @@ server <- function(input, output, session) {
     updateTabsetPanel(session, "aboutTabset", "How to cite us?")
   })
   
+  observeEvent(input$foo2, {
+    updateTabsetPanel(session, "aboutTabset", "How to cite us?")
+    message(paste("xyzds - ", input$foo2, sep = ""))
+  })
+  
   observeEvent(input$buttonSampleData, {
     network_value("uniprot.human")
     myvalue("sample")
@@ -110,6 +115,7 @@ server <- function(input, output, session) {
     if(input$mainTabset == "About"){
       updateTabsetPanel(session, "mainTabset", "Plot")
     }
+    session$sendCustomMessage('testmsg', paste(upload_name(), network_value(), sep="-"))
   })
   
   upload_dataset <- reactive({

@@ -110,6 +110,25 @@ about_tab <- function(){
   )
 }
 
+ga_scripts <- function (){
+  tags$script(HTML(
+    "$(document).on('shiny:inputchanged', function(event) {
+       if (event.name === 'buttonSampleData') {
+         Shiny.setInputValue('foo', 'bar', {priority: 'event'});
+         //ga('send', 'event', 'input', 'updates', event.name, event.value);
+       }
+     });
+    Shiny.addCustomMessageHandler('testmsg', function(message) {
+      words = message.split('-');
+      main = words[0]
+      details = words[1]
+      //Shiny.setInputValue('foo2', details, {priority: 'event'});
+      ga('send', 'event', 'upload', 'success', main, details);
+    });
+    "
+  ))
+}
+
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   title = "RoKAI App",
@@ -117,7 +136,8 @@ ui <- fluidPage(
     tags$link(rel="shortcut icon", href="favicon.png"),
     tags$meta(name="description", content="RoKAI: Robust Inference of Kinase Activity using functional networks"),
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
-    includeHTML(("www/google-analytics.html"))
+    includeHTML(("www/google-analytics.html")),
+    ga_scripts()
   ),
   verticalLayout(
     div(
