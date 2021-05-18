@@ -1,0 +1,8 @@
+.panel-body {
+  background-color: #F8F8F8;
+}
+
+/* Change header text to imported font */
+h2 {
+  font-family: 'Yusei Magic', sans-serif;
+}
