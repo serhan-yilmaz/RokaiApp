@@ -17,7 +17,8 @@ ui <- fluidPage(
   tags$head(
     tags$link(rel="shortcut icon", href="favicon.png"),
     tags$meta(name="description", content="RoKAI: Robust Inference of Kinase Activity using functional networks"),
-    tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+    tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
+    includeHTML(("www/google-analytics.html"))
   ),
   verticalLayout(
     div(
