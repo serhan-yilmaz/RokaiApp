@@ -1,5 +1,4 @@
 
-#library(R.matlab)
 library(Matrix)
 library(shiny)
 library(DT)
@@ -24,8 +23,6 @@ folder = "data/"
 Tsample <- read.csv(paste(folder, "sample_data_uniprot_human.csv", sep=""))
 
 #T$ID = paste(T$Protein, T$Position, sep="_")
-
-
 
 withConsoleRedirect <- function(containerId, expr) {
   # Change type="output" to type="message" to catch stderr
@@ -70,12 +67,13 @@ server <- function(input, output, session) {
   reactive_dataset <- reactive({
     req(initialized())
     switch (myvalue(),
-            "sample" = Tsample,
-            "upload" = upload_dataset(),
+            "sample" = D <- Tsample,
+            "upload" = D <- upload_dataset(),
             validate(
               need(FALSE, "Waiting for data...")
             )
     )
+    return (D)
   })
   
   refProteomeValue <- reactive({
@@ -167,6 +165,7 @@ server <- function(input, output, session) {
   
   preprocessed_dataset <- reactive({
     req(mapped_dataset())
+    
     X <- mapped_dataset()
     validSites = !is.na(X);
     Xv = X[validSites];
@@ -262,6 +261,8 @@ server <- function(input, output, session) {
     K$ZScore = as.matrix(Z)
     K$PValue = res$PValues
     K$FDR = res$QValues
+    
+    #ready(TRUE)
     
     return (K)
   })

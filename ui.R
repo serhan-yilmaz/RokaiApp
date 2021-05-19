@@ -1,6 +1,8 @@
 library(shiny)
 library(magrittr)
 library(DT)
+## library(shinycssloaders) - Dependency
+
 
 multiChoicePicker <- function(id, label, choices, selected = choices[1]) {
   tags$div(
@@ -46,6 +48,21 @@ about_question <- function(qtxt, atxt, href, actLink = FALSE){
     link
   )
 }
+
+version_text <- function(){"v2.0.1"}
+#version_style <- function(){"font-size: 12px; color:#737373;"}
+#version_style <- function(){"font-size: 14px; color:#A3A3A3;"}
+version_style <- function(){"font-size: 14px; color:#93A3A3;"}
+version_style_additional <- function(){
+  "-webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;"
+}
+
+
 
 about_tab <- function(){
   tabsetPanel(id = "aboutTabset",
@@ -147,7 +164,10 @@ ui <- fluidPage(
       #style = "margin:0px; padding:0px;",
       style = "margin-bottom:0px; padding-bottom:0px;",
       div(
-        img(src='rokai_app_logo.png', align = "left", style = "height: 150px; padding-bottom:10px;")#,
+        style = "position: relative; width: 100%",
+        img(src='rokai_app_logo.png', align = "left", style = "height: 150px; padding-bottom:10px;"),
+        
+        tags$p(version_text(), style = paste(version_style(), version_style_additional(), "position: absolute; top: 38px; left:510px; width: 70%;", sep = ""))
         #tags$p("v2.0.0", style = "color:#A3A3A3;")
       ),
       tags$br(),
@@ -205,7 +225,14 @@ ui <- fluidPage(
       multiChoicePicker("rokaiNetwork", "RoKAI Network:", c("KinaseSubstrate", "KS+PPI", "KS+PPI+SD", "KS+PPI+SD+CoEv"), "KS+PPI+SD+CoEv"),
       checkboxInput("rokaiEnabled", "Use sites in functional neighborhood", TRUE),
       tags$hr(style = "margin: 8px 0px 8px 0px;"),
-      multiChoicePicker("yaxis", "Plot Y-Axis:", c("Kinase Activity", "Z-Score"))
+      multiChoicePicker("yaxis", "Plot Y-Axis:", c("Kinase Activity", "Z-Score"))#,
+      # tags$div(style = "text-align: right; min-height: 0px; padding: 0px; margin-bottom: 0px;",
+      #   conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+      #            tags$p(style = "margin:0px; padding:0px;", "Loading..."),id="loadmessage")
+      # )
+
+     # conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+      #           tags$div(style = "text-align: right;", "Loading...",id="loadmessage"))
     ), 
 # tags$div(
 #   class = "panel panel-default",
@@ -243,7 +270,7 @@ tags$div(
         ),
         tabPanel(
           "Plot",
-          plotOutput("distPlot", height = "340px"), 
+          shinycssloaders::withSpinner(plotOutput("distPlot", height = "340px")), 
           splitLayout(
             sliderInput("minnumsubs", "Minimum number of substrates", 1, 10, 3, step = 1, width = "220px"), 
             sliderInput("minzscore", "Minimum absolute z-score", 0, 2, 1, step = 0.05, width = "220px"),
@@ -257,12 +284,12 @@ tags$div(
         ,
         tabPanel(id = "xyz", 
           "Kinases",
-          DT::dataTableOutput("kinaseTable"),
+          shinycssloaders::withSpinner(DT::dataTableOutput("kinaseTable")),
           #div(style = 'overflow: auto; max-height:450px;', div(style = "width: 96%", dataTableOutput("kinaseTable")))
         ),
         tabPanel(
           "Kinase Targets",
-          DT::dataTableOutput("kinasesubsTable"),
+          shinycssloaders::withSpinner(DT::dataTableOutput("kinasesubsTable")),
         )
       )
     )
