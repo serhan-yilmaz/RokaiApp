@@ -133,6 +133,15 @@ server <- function(input, output, session) {
     myvalue("upload")
     upload_name(fileInfo$name)
     message(cat("Dataset is uploaded: ", fileInfo$name))
+    
+    validate(
+      need(x$Protein, "File format error: Protein column is missing."),
+      need(x$Position, "File format error: Position column is missing."),
+      need(x$Quantification, "File format error: Quantification column is missing.")
+    )
+    validate(
+      need(class(x$Quantification) == "numeric", "File format error: Quantification column must be numeric.")
+    )
     return(x)
   })
   
@@ -156,7 +165,7 @@ server <- function(input, output, session) {
     X[indices[valids]] = T$Quantification[valids]
     
     validate(
-      need(nnzero(!is.na(X))>0, "Mapping failed.")
+      need(nnzero(!is.na(X))>0, "Input mapping failed. Please check if the correct reference proteome is selected.")
     )
     
     return (X)
