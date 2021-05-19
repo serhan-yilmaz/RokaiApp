@@ -49,7 +49,7 @@ about_question <- function(qtxt, atxt, href, actLink = FALSE){
   )
 }
 
-version_text <- function(){"v2.0.1"}
+version_text <- function(){"v2.0.2"}
 #version_style <- function(){"font-size: 12px; color:#737373;"}
 #version_style <- function(){"font-size: 14px; color:#A3A3A3;"}
 version_style <- function(){"font-size: 14px; color:#93A3A3;"}
