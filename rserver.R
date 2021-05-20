@@ -93,8 +93,13 @@ guide <- Cicerone$
       #tab_id = "mainTabset"
     )$
   step(
+    "plot_sliders_div",
+    "Sliders", 
+    "You can use these sliders to control how many kinases are shown in the plot."
+  )$
+  step(
     "plot_download_div",
-    "Download Plot", 
+    "Export Plot", 
     "You can use these buttons to download the plot as a pdf file or png image."
   )$
   step(
@@ -130,7 +135,7 @@ guide <- Cicerone$
   step(
     "[data-value='About']",
     "End of Tutorial",
-    "This is the end of the tutorial. Hope you enjoyed it! Click on the 'about' tab to return to the home page.",
+    "This is the end of the tutorial. Hope you enjoyed it! Click on the About tab to return to the home page.",
     is_id = FALSE
   )
 

@@ -59,7 +59,7 @@ about_question <- function(qtxt, atxt, href, actLink = FALSE){
   )
 }
 
-version_text <- function(){"v2.0.3"}
+version_text <- function(){"v2.0.4"}
 #version_style <- function(){"font-size: 12px; color:#737373;"}
 #version_style <- function(){"font-size: 14px; color:#A3A3A3;"}
 version_style <- function(){"font-size: 14px; color:#93A3A3;"}
@@ -291,10 +291,11 @@ tags$div(
           shinycssloaders::withSpinner(plotOutput("distPlot", height = "340px")), 
           #splitLayout(
           fluidRow(
-            column(width = 3, style = "padding: 8px;", 
-            sliderInput("minnumsubs", "Min. number of substrates", 1, 10, 3, step = 1, width = "220px")), 
-            column(width= 3, style = "padding: 8px;", sliderInput("minzscore", "Min. absolute z-score", 0, 2, 1, step = 0.05, width = "220px")),
-            column(width = 3, style = "padding: 8px;", multiChoicePicker("yaxis", "Plot Y-Axis:", c("Kinase Activity", "Z-Score"), isInline = "F")),
+            column(width = 6, style = "padding: 8px;", fluidRow(id = "plot_sliders_div", 
+            column(width = 6, style = "padding: 8px;", sliderInput("minnumsubs", "Min. number of substrates", 1, 10, 3, step = 1, width = "220px")), 
+            column(width= 6, style = "padding: 8px;", sliderInput("minzscore", "Min. absolute z-score", 0, 2, 1, step = 0.05, width = "220px"))
+            )),
+            column(width = 3, style = "padding: 8px; padding-left: 16px;", multiChoicePicker("yaxis", "Plot Y-Axis:", c("Kinase Activity", "Z-Score"), isInline = "F")),
             column(width = 3, style = "padding: 8px;", tags$div(id = "plot_download_div", 
               downloadButton('downloadKinasePlotPNG', 'Download PNG'),
               tags$br(), 
