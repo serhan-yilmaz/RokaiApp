@@ -1,16 +1,26 @@
 library(shiny)
 library(magrittr)
 library(DT)
+library(cicerone)
 ## library(shinycssloaders) - Dependency
 
 
-multiChoicePicker <- function(id, label, choices, selected = choices[1]) {
-  tags$div(
-    class = "inline-block",
-    style = "justify-content: space-between;", 
-    tags$b(label),
-    shinyWidgets::pickerInput(id, "", choices, selected = selected, width = "fit", inline = T)
+multiChoicePicker <- function(id, label, choices, selected = choices[1], isInline = "T") {
+  switch(isInline, 
+    "T" = R <- tags$div(
+      class = "inline-block", id = paste(id, "_div", sep = ""), 
+      style = "justify-content: space-between;", 
+      tags$b(label),
+      shinyWidgets::pickerInput(id, "", choices, selected = selected, width = "fit", inline = T)
+    ),
+    "F" = R <- tags$div(
+      id = paste(id, "_div", sep = ""), 
+      tags$b(label),
+      #selectInput(id, label, choices, selected = selected, width = "auto")
+      shinyWidgets::pickerInput(id, "", choices, selected = selected, width = "fit", inline = F)
+    )
   )
+  return (R)
 }
 
 paper_txt <- function(authors, date, title, journal, link, misc){
@@ -49,7 +59,7 @@ about_question <- function(qtxt, atxt, href, actLink = FALSE){
   )
 }
 
-version_text <- function(){"v2.0.2"}
+version_text <- function(){"v2.0.3"}
 #version_style <- function(){"font-size: 12px; color:#737373;"}
 #version_style <- function(){"font-size: 14px; color:#A3A3A3;"}
 version_style <- function(){"font-size: 14px; color:#93A3A3;"}
@@ -69,13 +79,14 @@ about_tab <- function(){
     tabPanel(
       "Welcome",
       tags$div(
-        class = "panel-body",
+        class = "panel-body", id = "about_main_div", 
         style = "padding-bottom:5px; padding-top:2px; margin:0px;", #  height: 78px;
         #tags$p(),
         tags$h3("Welcome!", style="font-weight:bold;"),
         tags$h4(style="font-style:italic;", "RoKAI is a computational tool for inferring kinase activities in a robust manner using functional networks."),
         
-        about_question("Using it first time? To help getting started, read our ", "User Manual", "https://github.com/serhan-yilmaz/RoKAI/raw/master/rokai_user_manual.pdf"),
+        about_question("Using it first time? To help getting started, try our ", "Interactive Tutorial", "interactiveDemo", actLink = T),
+        #about_question("Using it first time? To help getting started, read our ", "User Manual", "https://github.com/serhan-yilmaz/RoKAI/raw/master/rokai_user_manual.pdf"),
         about_question("Prefer to run locally? Download source code at ", "Github page", "https://github.com/serhan-yilmaz/Rokai"),
         about_question("Have a quick question or need some help?", "Contact us", "contactLink", actLink = T),
         about_question("Use RoKAI in your research?", "Please cite us", "citeLink", actLink = T),
@@ -94,6 +105,7 @@ about_tab <- function(){
     ),
     tabPanel(
       "Contact",
+      id = "Contact", 
       tags$div(
         class = "panel-body",
         style = "padding-bottom:5px; padding-top:2px; margin:0px;", #  height: 78px;
@@ -158,6 +170,7 @@ ui <- fluidPage(
     includeHTML(("www/google-analytics.html"))
   ),
   ga_scripts(),
+  use_cicerone(),
   verticalLayout(
     div(
       class = "panel-heading",
@@ -174,15 +187,16 @@ ui <- fluidPage(
       #tags$br(style = "display: block; content: \"\"; margin-top: 16px;")
      # tags$span("", style = "font-size: 16.5px; margin-bottom:5px; padding-bottom:0px;")
     ),
-  # Sidebar with a slider input for number of bins 
+  # Sidebar with a slider input for number of bins
   fluidRow(
+      id = "main_layout_div", 
     column(width = 4,
-           tags$form(class = "well", style = "margin-bottom:8px;",
+           tags$form(class = "well", style = "margin-bottom:8px;", id = "main_control_div", 
  # sidebarLayout(
 #    sidebarPanel(
       #tags$div(
         tags$div(
-          class = "inline-block",
+          class = "inline-block", id = "sample_data_div", 
           tags$b("Sample Data: ", style = "margin-right: 10px;"),
           tags$div(
             class = "inline-block", 
@@ -203,13 +217,15 @@ ui <- fluidPage(
           # )
         ),
         tags$hr(style = "margin:6px 0px 4px 0px;"),
+        tags$div(style = "margin: 0px;", id = "upload_data_div", 
         tags$div(
           fileInput("file1", "Upload Data:", accept = c(".csv")),
           tags$style(".shiny-input-container {margin-bottom: 0px} #file1_progress { margin-bottom: 3px } .checkbox { margin-top: 0px}"),
           tags$style(".checkbox {margin-bottom: 0px;}"),
         ),
         multiChoicePicker("refproteome", "Reference Proteome:", c("Uniprot Human", "Uniprot Mouse")),
-        tags$hr(style = "margin: 8px 0px 8px 0px;"),
+        tags$hr(style = "margin: 8px 0px 8px 0px;")
+        ),
       #),
       # tags$div(
       #   class = "panel panel-default",
@@ -221,11 +237,12 @@ ui <- fluidPage(
       #     id = "fileInput",
       #   )
       # ),
+      tags$div(style = "margin: 0px", id = "inference_options_div", 
       multiChoicePicker("datanorm", "Fold Changes:", c("Raw", "Centered", "Normalized"), "Normalized"),
       multiChoicePicker("rokaiNetwork", "RoKAI Network:", c("KinaseSubstrate", "KS+PPI", "KS+PPI+SD", "KS+PPI+SD+CoEv"), "KS+PPI+SD+CoEv"),
       checkboxInput("rokaiEnabled", "Use sites in functional neighborhood", TRUE),
-      tags$hr(style = "margin: 8px 0px 8px 0px;"),
-      multiChoicePicker("yaxis", "Plot Y-Axis:", c("Kinase Activity", "Z-Score"))#,
+      #tags$hr(style = "margin: 8px 0px 8px 0px;")
+      ),
       # tags$div(style = "text-align: right; min-height: 0px; padding: 0px; margin-bottom: 0px;",
       #   conditionalPanel(condition="$('html').hasClass('shiny-busy')",
       #            tags$p(style = "margin:0px; padding:0px;", "Loading..."),id="loadmessage")
@@ -270,26 +287,35 @@ tags$div(
         ),
         tabPanel(
           "Plot",
+          tags$div(id = "kinase_plot_div", 
           shinycssloaders::withSpinner(plotOutput("distPlot", height = "340px")), 
-          splitLayout(
-            sliderInput("minnumsubs", "Minimum number of substrates", 1, 10, 3, step = 1, width = "220px"), 
-            sliderInput("minzscore", "Minimum absolute z-score", 0, 2, 1, step = 0.05, width = "220px"),
-            tags$div(
+          #splitLayout(
+          fluidRow(
+            column(width = 3, style = "padding: 8px;", 
+            sliderInput("minnumsubs", "Min. number of substrates", 1, 10, 3, step = 1, width = "220px")), 
+            column(width= 3, style = "padding: 8px;", sliderInput("minzscore", "Min. absolute z-score", 0, 2, 1, step = 0.05, width = "220px")),
+            column(width = 3, style = "padding: 8px;", multiChoicePicker("yaxis", "Plot Y-Axis:", c("Kinase Activity", "Z-Score"), isInline = "F")),
+            column(width = 3, style = "padding: 8px;", tags$div(id = "plot_download_div", 
               downloadButton('downloadKinasePlotPNG', 'Download PNG'),
               tags$br(), 
               downloadButton('downloadKinasePlotPDF', 'Download PDF')
             )
-          ), 
+            )
+          )), 
         )
         ,
-        tabPanel(id = "xyz", 
+        tabPanel(id = "Kinases", 
           "Kinases",
-          shinycssloaders::withSpinner(DT::dataTableOutput("kinaseTable")),
+          tags$div(id = "kinase_table_div", 
+          shinycssloaders::withSpinner(DT::dataTableOutput("kinaseTable"))
+          )
           #div(style = 'overflow: auto; max-height:450px;', div(style = "width: 96%", dataTableOutput("kinaseTable")))
         ),
         tabPanel(
-          "Kinase Targets",
-          shinycssloaders::withSpinner(DT::dataTableOutput("kinasesubsTable")),
+          "Kinase Targets", id = "Kinase Targets", 
+          tags$div(id = "kinase_targets_div", 
+          shinycssloaders::withSpinner(DT::dataTableOutput("kinasesubsTable"))
+          )
         )
       )
     )

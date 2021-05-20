@@ -3,6 +3,7 @@ library(Matrix)
 library(shiny)
 library(DT)
 library(ggplot2)
+library(cicerone)
 source("compute_pvalues.R")
 source("rokai_kinase_weights.R")
 source("rokai_inference.R")
@@ -36,6 +37,103 @@ withConsoleRedirect <- function(containerId, expr) {
   results
 }
 
+library(cicerone)
+
+guide <- Cicerone$
+  new()$ 
+  step("about_main_div", 
+       "Welcome",
+       "This is a quick tutorial to help you get started. Click next to continue."
+ #      "RoKAI is an algorithm for inferring kinase activities using available functional networks on cellular signaling.        \n This is a simple tutorial to help get you started. "
+  )$
+  step("main_control_div", 
+       "Input & Options",
+       "This is main control area to select input data and the options for the inference"
+  )$
+  step(
+    "sample_data_div",
+    "Sample Data",
+    "Use this area to load a sample data or download it to view the input file format.", 
+    #on_next = "function(element){Shiny.setInputValue('foo2', 'step1', {priority: 'event'});}", 
+  )$
+  step(
+    "upload_data_div",
+    "Upload Data",
+    "Use this area to upload an input data. Input should be a .csv file having 3 columns: Protein, Position, Quantification",
+  )$
+  step(
+    "refproteome_div", 
+    "Reference Proteome",
+    "Make sure to select the correct reference proteome before uploading the data."
+  )$
+  step("inference_options_div",
+       "Inference Options", 
+       "(Optional) Use this area to customize the options for kinase activity inference.")$
+  step(
+    "buttonSampleData",
+    "Sample Data",
+    #"The tutorial will now load the sample data to show the output.", 
+    "Click on the load sample data button to continue.", 
+    on_next = "function(element){Shiny.setInputValue('foo2', 'step_plot', {priority: 'event'});}", 
+  )$
+  step(
+    "[data-value='Plot']",
+    "Plot Tab",
+    "Select this tab to see the kinase results as a bar plot. ",
+    #on_next = "Shiny.setInputValue('foo2', 'step2', {priority: 'event'});", 
+    #on_highlight_started = "Shiny.setInputValue('foo2', 'qfds', {priority: 'event'});",
+    is_id = FALSE
+  )$
+    step(
+      el = "kinase_plot_div",
+      title = "Kinase Plot",
+      description = "This plot shows the inferred activities of kinases that are the most significant. You can use the options in the bottom panel to customize the plot."
+      #on_highlight_started = "Shiny.setInputValue('foo2', 'qfds', {priority: 'event'});",
+      #tab = "Plot",
+      #tab_id = "mainTabset"
+    )$
+  step(
+    "plot_download_div",
+    "Download Plot", 
+    "You can use these buttons to download the plot as a pdf file or png image."
+  )$
+  step(
+    "[data-value='Kinases']",
+    "Kinases Tab",
+    "Select this tab to get more detailed information about the kinases.",
+    on_highlighted = "function(element){Shiny.setInputValue('foo2', 'step_kinases', {priority: 'event'});}", 
+    is_id = FALSE
+  )$
+  step(
+    el = "kinase_table_div",
+    title = "Kinase Table",
+    description = "This table contains information on inferred kinase activies. Using the control panel on the top, you can search for a specific kinase or download the results. "
+    #on_highlight_started = "Shiny.setInputValue('foo2', 'qfds', {priority: 'event'});",
+    #tab = "Plot",
+    #tab_id = "mainTabset"
+  )$
+  step(
+    "[data-value='Kinase Targets']",
+    "Kinase Targets",
+    "Select this tab to view the known kinase substrates.",
+    on_highlighted = "function(element){Shiny.setInputValue('foo2', 'step_kinase_targets', {priority: 'event'});}", 
+    is_id = FALSE
+  )$
+  step(
+    el = "kinase_targets_div",
+    title = "Kinase Targets",
+    description = "This table contains information on the known kinase targets. Using the search bar on the top, you can search for a specific kinase or phosphosite. "
+    #on_highlight_started = "Shiny.setInputValue('foo2', 'qfds', {priority: 'event'});",
+    #tab = "Plot",
+    #tab_id = "mainTabset"
+  )$
+  step(
+    "[data-value='About']",
+    "End of Tutorial",
+    "This is the end of the tutorial. Hope you enjoyed it! Click on the 'about' tab to return to the home page.",
+    is_id = FALSE
+  )
+
 server <- function(input, output, session) {
   
   observe({
@@ -50,6 +148,7 @@ server <- function(input, output, session) {
   myvalue <- reactiveVal("")
   ready <- reactiveVal(TRUE)
   initialized <- reactiveVal(TRUE)
+  #tutorial <- reactiveVal(FALSE)
   
   reactive_network <- reactive({
     req(initialized())
@@ -82,6 +181,11 @@ server <- function(input, output, session) {
            "Uniprot Mouse" = "uniprot.mouse")
   })
   
+  observeEvent(input$interactiveDemo, {
+    guide$init()$start()
+    t#utorial(TRUE)
+  })
+  
   observeEvent(input$contactLink, {
     updateTabsetPanel(session, "aboutTabset", "Contact")
   })
@@ -92,8 +196,16 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$foo2, {
-    updateTabsetPanel(session, "aboutTabset", "How to cite us?")
-    message(paste("xyzds - ", input$foo2, sep = ""))
+    #req(tutorial())
+    network_value("uniprot.human")
+    myvalue("sample")
+    switch(input$foo2,
+      "step_plot" = updateTabsetPanel(session, "mainTabset", "Plot"),
+      "step_kinases" = updateTabsetPanel(session, "mainTabset", "Kinases"),
+      "step_kinase_targets" = updateTabsetPanel(session, "mainTabset", "Kinase Targets")
+    )
+    #updateTabsetPanel(session, "aboutTabset", "How to cite us?")
+    #message(paste("xyzds - ", input$foo2, sep = ""))
   })
   
   observeEvent(input$buttonSampleData, {
@@ -102,6 +214,12 @@ server <- function(input, output, session) {
     if(input$mainTabset == "About"){
       updateTabsetPanel(session, "mainTabset", "Plot")
     }
+    a <- guide$get_next()
+    if(!is.null(a) && guide$get_next()$highlighted == "inference_options_div"){
+      message("abcd")
+      guide$move_forward()
+    }
+      
   })
   
   observeEvent(input$file1, {
