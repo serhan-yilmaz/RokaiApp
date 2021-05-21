@@ -221,7 +221,7 @@ server <- function(input, output, session) {
     }
     a <- guide$get_next()
     if(!is.null(a) && guide$get_next()$highlighted == "inference_options_div"){
-      message("abcd")
+      #message("abcd")
       guide$move_forward()
     }
       
@@ -310,6 +310,24 @@ server <- function(input, output, session) {
     return (list("Xv" = Xv, "Sx" = Sx, "validSites" = validSites))
   })
   
+  selected_ks_network <- reactive({
+    req(reactive_network())
+    NetworkData <- reactive_network()
+    Wk2s <- NetworkData$net$Wkin2site.psp
+    
+    switch(input$ksNetwork, 
+           "PhosphoSitePlus" = ropts <- list("includeSignor" = F),
+           "PSP+Signor" = ropts <- list("includeSignor" = T)
+    )
+    
+    if(ropts$includeSignor){
+      Wk2s = Wk2s | NetworkData$net$Wkin2site.signor
+    }
+    
+    #message(nnzero(Wk2s))
+    return (Wk2s)
+  })
+  
   site_table <- reactive({
     req(preprocessed_dataset())
     ds <- preprocessed_dataset();
@@ -333,6 +351,7 @@ server <- function(input, output, session) {
 
   kinase_activities <- reactive({
     req(preprocessed_dataset())
+    req(selected_ks_network())
     ds <- preprocessed_dataset();
     
     validSites = ds$validSites
@@ -340,7 +359,8 @@ server <- function(input, output, session) {
     Sx = ds$Sx
     
     NetworkData <- reactive_network()
-    Wk2s = NetworkData$Wkin2site
+    Wk2s <- selected_ks_network()
+    nSite = ncol(Wk2s)
     
     wk2s = Wk2s[, validSites];
     nSubs = (wk2s %*% rep(1, length(Xv)))
@@ -357,7 +377,6 @@ server <- function(input, output, session) {
       } else {
         Wk2k = NULL
       }
-      nSite = ncol(NetworkData$Wkin2site)
       Ws2s = sparseMatrix(
         i = c(),
         j = c(), 
@@ -401,6 +420,7 @@ server <- function(input, output, session) {
   
   kinase_subs_table <- reactive({
     req(preprocessed_dataset())
+    req(selected_ks_network())
     req(site_table())
     
     ds <- preprocessed_dataset();
@@ -410,11 +430,21 @@ server <- function(input, output, session) {
     NetworkData <- reactive_network()
     K = NetworkData$Kinase
     
-
-    wk2s = NetworkData$Wkin2site[, validSites];
+    Wks_psp = NetworkData$net$Wkin2site.psp
+    Wks_signor = NetworkData$net$Wkin2site.signor
+    
+    Wkin2site <- selected_ks_network()
+    
+    wk2s = Wkin2site[, validSites];
+    Wks_psp = Wks_psp[, validSites]
+    Wks_signor = Wks_signor[, validSites]
+    
     indices = which(wk2s)
     i1 = indices %% nrow(wk2s)
     i2 = floor(indices/nrow(wk2s))+ 1
+    
+    withinPSP = Wks_psp[indices]
+    datasource <- ifelse(withinPSP, "PhosphoSitePlus", "Signor")
     
     KS = data.frame(
       KinID = K$KinaseID[i1],
@@ -423,6 +453,7 @@ server <- function(input, output, session) {
       SubsProtein = ST$Protein[i2],
       SubsGene = ST$Gene[i2],
       Position = ST$Position[i2],
+      DataSource = datasource, 
       Flanking = ST$Flanking[i2],
       Quantification = ST$Phos[i2],
       ZScore = ST$ZScore[i2],

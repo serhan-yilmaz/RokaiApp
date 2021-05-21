@@ -26,8 +26,10 @@ multiChoicePicker <- function(id, label, choices, selected = choices[1], isInlin
 paper_txt <- function(authors, date, title, journal, link, misc){
   tags$div(
     class = "inline", 
-    style = "margin-bottom: 6px; margin-top; 6px;", 
-    tags$ul(tags$li(
+    style = "margin-bottom: 6px; margin-top: 6px;", 
+    tags$ul(
+      style = "margin-bottom: 0px; margin-top: 0px;", 
+      tags$li(
       tags$text(style = "font-size: medium;", paste(authors, " (", date, ") ", sep = "")),
       tags$text(style = "font-size: medium; font-style: italic;", title),
       tags$a(style = "font-size: medium;", journal, href = link),
@@ -41,6 +43,14 @@ desc_text <- function(qtxt){
     class = "inline", 
     style = "margin-bottom: 6px; margin-top; 6px;", 
     tags$text(style = "font-size: medium;", qtxt)
+  )
+}
+
+dataset_version_text <- function(dataset, date, link){
+  dataset <- paste(dataset, ":", sep = "")
+  tags$tr(
+    tags$td(tags$li(tags$a(dataset, href = link))), 
+    tags$td(date)
   )
 }
 
@@ -59,7 +69,7 @@ about_question <- function(qtxt, atxt, href, actLink = FALSE){
   )
 }
 
-version_text <- function(){"v2.0.4"}
+version_text <- function(){"v2.1.0"}
 #version_style <- function(){"font-size: 12px; color:#737373;"}
 #version_style <- function(){"font-size: 14px; color:#A3A3A3;"}
 version_style <- function(){"font-size: 14px; color:#93A3A3;"}
@@ -112,7 +122,7 @@ about_tab <- function(){
         #tags$p(),
         tags$h3("Contact", style="font-weight:bold;"),
         desc_text("RoKAI is designed by Serhan Yilmaz and Mehmet Koyuturk at Case Western Reserve University."),
-        desc_text("If you have any questions or feature suggestions, please contact <serhan.yilmaz@case.edu>"),
+        desc_text("If you have any questions, please contact <serhan.yilmaz@case.edu>"),
         
         tags$h3("Acknowledgement", style="font-weight:bold;"),
         desc_text("This work was supported by National Institute of Health (NIH) grant R01-LM012980 from the National Libraries of Medicine.")
@@ -127,13 +137,50 @@ about_tab <- function(){
         tags$h3("How to cite us?", style="font-weight:bold;"),
         desc_text("Please cite the following paper(s) if you use RoKAI in your research:"),
         paper_txt("Yilmaz S., Ayati M., Schlatzer D., Cicek A. E., Chance M. R., Koyuturk M.", "2021", "Robust inference of kinase activity using functional networks", "Nature Communications", "https://doi.org/10.1038/s41467-021-21211-6", "12 (1117)"),
-        
+        tags$p("", style = "margin: 0px; padding-bottom: 2px; padding-top: 0px;"),
         desc_text("RoKAI uses the following resources for functional networks:"),
         paper_txt("Hornbeck, P. V. et al.", "2015", "Phosphositeplus, 2014: mutations, ptms and recalibrations.", "Nucleic acids research", "https://doi.org/10.1093/nar/gku1267", "43(D1), D512-D520"),
+        paper_txt("Licata, L. et al.", "2020", "SIGNOR 2.0, the SIGnaling network open resource 2.0: 2019 update.", "Nucleic acids research", "https://doi.org/10.1093/nar/gkz949", "48(D1), D504-D510"),
         paper_txt("Minguez, P. et al.", "2012", "PTMcode: a database of known and predicted functional associations between post-translational modifications in proteins.", "Nucleic acids research", "https://doi.org/10.1093/nar/gks1230", "41(D1), D306-D311"),
         paper_txt("Szklarczyk, D. et al.", "2014", "STRING v10: protein–protein interaction networks, integrated over the tree of life.", "Nucleic acids research", "https://doi.org/10.1093/nar/gku1003", "43(D1), D447-D452")
-        
-        
+      )
+    ),
+    tabPanel(
+      "Versions",
+      tags$div(
+        class = "panel-body",
+        style = "padding-bottom:5px; padding-top:2px; margin:0px;", #  height: 78px;
+        #tags$p(),
+        tags$h3("Dataset Versions", style="font-weight:bold;"),
+        #desc_text("Last updated dates for the datasets used are as follows:")
+        desc_text("The versions (last modified dates) of the datasets used are as follows:"),
+        tags$table(
+          style="width:36%; font-size: 16px; margin-left: 22px;",
+          dataset_version_text("PhosphoSitePlus", "2021-04-19", "https://www.phosphosite.org/"),
+          dataset_version_text("Signor", "2021-05-21", "https://signor.uniroma2.it/"),
+          dataset_version_text("STRING", "2018-12-20", "https://string-db.org/"),
+          dataset_version_text("PTMcode", "2014-09-17", "https://ptmcode.embl.de/"),
+          # tags$tr(
+          #   tags$td(tags$li("PhosphoSitePlus:")), 
+          #   tags$td("2021-04-19")
+          # ),
+          # tags$tr(
+          #   tags$td(tags$li("Signor:")), 
+          #   tags$td("2021-05-21")
+          # ),
+          # tags$tr(
+          #   tags$td(tags$li("STRING:")), 
+          #   tags$td("2018-12-20")
+          # ),
+          # tags$tr(
+          #   tags$td(tags$li("PTMcode:")), 
+          #   tags$td("2014-09-17")
+          # ),
+        )
+        # desc_text("PhosphoSitePlus: 2021-04-19"),
+        # desc_text("Signor: 2021-05-21"),
+        # desc_text("STRING: 2018-12-20"),
+        # desc_text("PTMcode: 2014-09-17")
       )
     )
   )
@@ -187,7 +234,6 @@ ui <- fluidPage(
       #tags$br(style = "display: block; content: \"\"; margin-top: 16px;")
      # tags$span("", style = "font-size: 16.5px; margin-bottom:5px; padding-bottom:0px;")
     ),
-  # Sidebar with a slider input for number of bins
   fluidRow(
       id = "main_layout_div", 
     column(width = 4,
@@ -239,6 +285,7 @@ ui <- fluidPage(
       # ),
       tags$div(style = "margin: 0px", id = "inference_options_div", 
       multiChoicePicker("datanorm", "Fold Changes:", c("Raw", "Centered", "Normalized"), "Normalized"),
+      multiChoicePicker("ksNetwork", "Kinase Substrate Dataset:", c("PhosphoSitePlus", "PSP+Signor"), "PSP+Signor"),
       multiChoicePicker("rokaiNetwork", "RoKAI Network:", c("KinaseSubstrate", "KS+PPI", "KS+PPI+SD", "KS+PPI+SD+CoEv"), "KS+PPI+SD+CoEv"),
       checkboxInput("rokaiEnabled", "Use sites in functional neighborhood", TRUE),
       #tags$hr(style = "margin: 8px 0px 8px 0px;")
@@ -293,7 +340,7 @@ tags$div(
           fluidRow(
             column(width = 6, style = "padding: 8px;", fluidRow(id = "plot_sliders_div", 
             column(width = 6, style = "padding: 8px;", sliderInput("minnumsubs", "Min. number of substrates", 1, 10, 3, step = 1, width = "220px")), 
-            column(width= 6, style = "padding: 8px;", sliderInput("minzscore", "Min. absolute z-score", 0, 2, 1, step = 0.05, width = "220px"))
+            column(width= 6, style = "padding: 8px;", sliderInput("minzscore", "Min. absolute z-score", 0, 2, 1.25, step = 0.05, width = "220px"))
             )),
             column(width = 3, style = "padding: 8px; padding-left: 16px;", multiChoicePicker("yaxis", "Plot Y-Axis:", c("Kinase Activity", "Z-Score"), isInline = "F")),
             column(width = 3, style = "padding: 8px;", tags$div(id = "plot_download_div", 
