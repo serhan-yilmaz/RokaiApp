@@ -8,12 +8,15 @@ library(shinyjs)
 library(shinytoastr)
 library(shinylogs)
 
+library(ids)
+
 source("compute_pvalues.R")
 source("rokai_kinase_weights.R")
 source("rokai_inference.R")
 source("rokai_core.R")
 source("rokai_circuit.R")
 source("rokai_weights.R")
+source("current_version.R")
 #applyCapturedAppOptions(shiny.sanitize.errors = TRUE)
 
 #shinyOptions(shiny.sanitize.errors = TRUE)
@@ -155,6 +158,7 @@ server <- function(input, output, session) {
     })
   })
   
+  session_id <- reactiveVal(random_id(n = 1, byte = 8))
   network_value <- reactiveVal("uniprot.human")
   upload_name <- reactiveVal("")
   myvalue <- reactiveVal("")
@@ -193,8 +197,14 @@ server <- function(input, output, session) {
            "Uniprot Mouse" = "uniprot.mouse")
   })
   
+  main_logging <- function(message){
+    filepath = paste("logs/combined_log_", version_text(), ".txt", sep = "")
+    cat(paste(as.character(Sys.time()), " - " ,  session_id(), ": ", message, "\n", sep = ""), file = filepath, append = T)
+  }
+  
   observeEvent(input$interactiveDemo, {
     session$sendCustomMessage('interactive_demo_message', "")
+    main_logging("Interactive Demo")
     guide$init()$start()
     t#utorial(TRUE)
   })
@@ -225,6 +235,7 @@ server <- function(input, output, session) {
   observeEvent(input$buttonSampleData, {
     network_value("uniprot.human")
     myvalue("sample")
+    main_logging("Sample Data")
     
     if(input$mainTabset == "About"){
       updateTabsetPanel(session, "mainTabset", "Plot")
@@ -249,6 +260,8 @@ server <- function(input, output, session) {
       updateTabsetPanel(session, "mainTabset", "Plot")
     }
     session$sendCustomMessage('upload_sucess_message', paste(upload_name(), network_value(), sep="-"))
+    main_logging(paste("Upload Data - ", upload_name(), "-", network_value(), sep = ""))
+   # cat(paste(as.character(Sys.time()), " - " ,  session_id(), ": ", upload_name(), "-", network_value(), "\n", sep = ""), file = "logs/combined_log.txt", append = T)
   })
   
   upload_dataset <- reactive({

@@ -14,9 +14,11 @@ library(shinyBS)
 library(shinyhelper)
 library(tippy)
 
+source("current_version.R")
+
 ## library(shinycssloaders) - Dependency
 
-version_text <- function(){"v2.1.1"}
+
 
 multiChoicePicker <- function(id, label, choices, selected = choices[1], isInline = "T") {
   switch(isInline, 
