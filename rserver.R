@@ -4,6 +4,9 @@ library(shiny)
 library(DT)
 library(ggplot2)
 library(cicerone)
+library(shinyjs)
+library(shinytoastr)
+
 source("compute_pvalues.R")
 source("rokai_kinase_weights.R")
 source("rokai_inference.R")
@@ -141,6 +144,8 @@ guide <- Cicerone$
 
 server <- function(input, output, session) {
   
+  observe_helpers(withMathJax = TRUE)
+  
   observe({
     invalidateLater(1000)
     
@@ -187,6 +192,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$interactiveDemo, {
+    session$sendCustomMessage('interactive_demo_message', "")
     guide$init()$start()
     t#utorial(TRUE)
   })
@@ -204,6 +210,7 @@ server <- function(input, output, session) {
     #req(tutorial())
     network_value("uniprot.human")
     myvalue("sample")
+ #   runjs("document.getElementById('data_norm_tooltip_icon').addEventListener('click', function() {$('#modalExample').modal();})")
     switch(input$foo2,
       "step_plot" = updateTabsetPanel(session, "mainTabset", "Plot"),
       "step_kinases" = updateTabsetPanel(session, "mainTabset", "Kinases"),
@@ -216,6 +223,7 @@ server <- function(input, output, session) {
   observeEvent(input$buttonSampleData, {
     network_value("uniprot.human")
     myvalue("sample")
+    
     if(input$mainTabset == "About"){
       updateTabsetPanel(session, "mainTabset", "Plot")
     }
@@ -231,13 +239,14 @@ server <- function(input, output, session) {
     inFile <- input$file1
     if (is.null(inFile))
       return(NULL)
+    session$sendCustomMessage('upload_attempted_message', paste(upload_name(), network_value(), sep="-"))
     upload_dataset()
     req(upload_dataset())
     network_value(refProteomeValue())
     if(input$mainTabset == "About"){
       updateTabsetPanel(session, "mainTabset", "Plot")
     }
-    session$sendCustomMessage('testmsg', paste(upload_name(), network_value(), sep="-"))
+    session$sendCustomMessage('upload_sucess_message', paste(upload_name(), network_value(), sep="-"))
   })
   
   upload_dataset <- reactive({
@@ -290,6 +299,10 @@ server <- function(input, output, session) {
     validate(
       need(nnzero(!is.na(X))>0, "Input mapping failed. Please check if the correct reference proteome is selected.")
     )
+    if((myvalue() == "upload") && (nnzero(T$Quantification < 0) == 0)){
+      toastr_warning("Warning! No negatives values are detected in input data. Please make sure that the input quantifications are log transformed.", closeButton = T, timeOut = 50000, extendedTimeOut = 50000)
+    #  message("xjfj")
+    }
     
     return (X)
   })
@@ -307,6 +320,7 @@ server <- function(input, output, session) {
             "Normalized" = Xv <- (Xv - mean(Xv)) / sd(Xv))
     #Xv = (Xv - mean(Xv))
     Sx = rep(sd(Xv), length(Xv))
+    
     return (list("Xv" = Xv, "Sx" = Sx, "validSites" = validSites))
   })
   

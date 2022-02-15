@@ -2,8 +2,21 @@ library(shiny)
 library(magrittr)
 library(DT)
 library(cicerone)
+
+# For javascript
+library(shinyjs)
+
+# For notifications
+library(shinytoastr)
+
+# For tooltips
+library(shinyBS) 
+library(shinyhelper)
+library(tippy)
+
 ## library(shinycssloaders) - Dependency
 
+version_text <- function(){"v2.1.1"}
 
 multiChoicePicker <- function(id, label, choices, selected = choices[1], isInline = "T") {
   switch(isInline, 
@@ -69,7 +82,7 @@ about_question <- function(qtxt, atxt, href, actLink = FALSE){
   )
 }
 
-version_text <- function(){"v2.1.0"}
+
 #version_style <- function(){"font-size: 12px; color:#737373;"}
 #version_style <- function(){"font-size: 14px; color:#A3A3A3;"}
 version_style <- function(){"font-size: 14px; color:#93A3A3;"}
@@ -190,25 +203,39 @@ ga_scripts <- function (){
   tags$script(HTML(
     "$(document).on('shiny:inputchanged', function(event) {
        if (event.name === 'buttonSampleData') {
-          gtag('event', 'sample_button_clicked'));
+          gtag('event', 'sample_button_clicked');
        }
      });
-    Shiny.addCustomMessageHandler('testmsg', function(message) {
-      //words = message.split('-');
-      //main = words[0];
-      //details = words[1];
+    Shiny.addCustomMessageHandler('upload_sucess_message', function(message) {
       gtag('event', 'upload_success', {
         'event_category' : 'input_data',
         'event_label' : message
       });
       //Shiny.setInputValue('foo2', message, {priority: 'event'});
     });
+    Shiny.addCustomMessageHandler('upload_attempted_message', function(message) {
+      gtag('event', 'data_uploaded', {
+        'event_category' : 'input_data',
+        'event_label' : message
+      });
+      //Shiny.setInputValue('foo2', message, {priority: 'event'});
+    });
+    Shiny.addCustomMessageHandler('interactive_demo_message', function(message) {
+      gtag('event', 'interactive_demo', {
+        'event_category' : 'main_navigation',
+        'event_label' : message
+      });
+      //Shiny.setInputValue('foo2', message, {priority: 'event'});
+    });
+    
     "
   ))
 }
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  useToastr(),
+  useShinyjs(),
   title = "RoKAI App",
   tags$head(
     tags$link(rel="shortcut icon", href="favicon.png"),
@@ -216,6 +243,14 @@ ui <- fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
     includeHTML(("www/google-analytics.html"))
   ),
+  # tags$head(
+  #   tags$script("$(document).ready(function(){
+  #                                       $('#modalExample').modal();
+  #                                       });"),
+  #   tags$script("$('#data_norm_tooltip_icon').addEventListener('click', function() {
+  #   $('#modalExample').modal();
+  #   });" )
+  # ),
   ga_scripts(),
   use_cicerone(),
   verticalLayout(
@@ -284,12 +319,29 @@ ui <- fluidPage(
       #   )
       # ),
       tags$div(style = "margin: 0px", id = "inference_options_div", 
-      multiChoicePicker("datanorm", "Fold Changes:", c("Raw", "Centered", "Normalized"), "Normalized"),
+               helper(
+                 multiChoicePicker("datanorm", "Fold Changes:", c("Raw", "Centered", "Normalized"), "Centered"),
+                      type = "inline", id = "data_norm_tooltip_icon",
+                 title = "Data Normalization Options",
+                   content = c("Determines whether the input quantifications are to be normalized in preprocessing.", 
+                               paste("<b>Raw:</b>", "Uses the input fold changes without modification."),
+                               paste("<b>Centered:</b>", "This option centers the input log-fold changes around 0 (by subtracting the mean across all sites). "),
+                               paste("<b>Normalized:</b>", "This option additionally scales the log-fold changes to have 1 standard deviation. "),
+                              "</br> <b>Note:</b> The aim of this normalization procedure is to eliminate any possible imbalance between the case and control samples. The Centered option is recommended unless the necessary data preprocessing & quality control steps for this purpose are applied beforehand. ")
+                 
+                 ),
+                 
+               #
+      tippy_this("data_norm_tooltip_icon", "<span style='font-size:14px; margin: 0px;'>Determines whether the input data should be normalized. Click to learn more. <span>", allowHTML = TRUE), 
+    #  tippy("Hover me!", tooltip = "Hi, I'm the tooltip!"),
       multiChoicePicker("ksNetwork", "Kinase Substrate Dataset:", c("PhosphoSitePlus", "PSP+Signor"), "PSP+Signor"),
       multiChoicePicker("rokaiNetwork", "RoKAI Network:", c("KinaseSubstrate", "KS+PPI", "KS+PPI+SD", "KS+PPI+SD+CoEv"), "KS+PPI+SD+CoEv"),
       checkboxInput("rokaiEnabled", "Use sites in functional neighborhood", TRUE),
       #tags$hr(style = "margin: 8px 0px 8px 0px;")
       ),
+   #   bsCollapsePanel("Title", 
+   #         tags$div("fjkjdjkfd")
+   #   )
       # tags$div(style = "text-align: right; min-height: 0px; padding: 0px; margin-bottom: 0px;",
       #   conditionalPanel(condition="$('html').hasClass('shiny-busy')",
       #            tags$p(style = "margin:0px; padding:0px;", "Loading..."),id="loadmessage")
@@ -311,19 +363,21 @@ ui <- fluidPage(
 #     "<serhan.yilmaz@case.edu>"
 #   )
 # ),
-tags$div(
-  class = "panel panel-default",
-  style = "margin:0px; margin-bottom:5px;",
-  tags$div(
-    class = "panel-body",
-    style = "padding-bottom:10px; padding-top:10px; margin:0px;", #  height: 78px;
-    #tags$p(),
-    "RoKAI App is recently updated. To access the older version, please visit: ",
-    #tags$br(),
-    tags$a("http://legacy.rokai.io", href="http://legacy.rokai.io"),
-    #"<serhan.yilmaz@case.edu>"
-  )
-)
+
+# tags$div(
+#   class = "panel panel-default",
+#   style = "margin:0px; margin-bottom:5px;",
+#   tags$div(
+#     class = "panel-body",
+#     style = "padding-bottom:10px; padding-top:10px; margin:0px;", #  height: 78px;
+#     #tags$p(),
+#     "RoKAI App is recently updated. To access the older version, please visit: ",
+#     #tags$br(),
+#     tags$a("http://legacy.rokai.io", href="http://legacy.rokai.io"),
+#     #"<serhan.yilmaz@case.edu>"
+#   )
+# )
+
     ),
    # mainPanel(
     column(width = 8,
