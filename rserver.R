@@ -6,6 +6,7 @@ library(ggplot2)
 library(cicerone)
 library(shinyjs)
 library(shinytoastr)
+library(shinylogs)
 
 source("compute_pvalues.R")
 source("rokai_kinase_weights.R")
@@ -145,6 +146,7 @@ guide <- Cicerone$
 server <- function(input, output, session) {
   
   observe_helpers(withMathJax = TRUE)
+  track_usage(storage_mode = store_json(path = "logs/"))
   
   observe({
     invalidateLater(1000)
