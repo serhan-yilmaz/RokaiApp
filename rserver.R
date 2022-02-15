@@ -253,6 +253,7 @@ server <- function(input, output, session) {
     if (is.null(inFile))
       return(NULL)
     session$sendCustomMessage('upload_attempted_message', paste(upload_name(), network_value(), sep="-"))
+    main_logging(paste("Upload Attempted", sep = ""))
     upload_dataset()
     req(upload_dataset())
     network_value(refProteomeValue())
