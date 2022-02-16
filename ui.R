@@ -198,7 +198,7 @@ about_tab <- function(){
         desc_text("If you have any questions, please contact <serhan.yilmaz@case.edu>"),
         
         tags$h4("Feature Suggestions & Comments", style="font-weight:bold;"),
-        desc_text("To give feedback, request a new feature or to report a bug, please use the form below:"),
+        desc_text("To give feedback, request a new feature or to report a problem, please use the form below:"),
         tags$div(
         tags$div(style="display:inline-block; margin: 2px 0px 2px 0px;",
           textInput("textinput_name", "Name", value = "", width = 220, placeholder = "(Optional)")
