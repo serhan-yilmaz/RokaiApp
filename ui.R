@@ -163,7 +163,7 @@ about_tab <- function(){
         about_question("Using it first time? To help getting started, try our ", "Interactive Tutorial", "interactiveDemo", actLink = T),
         #about_question("Using it first time? To help getting started, read our ", "User Manual", "https://github.com/serhan-yilmaz/RoKAI/raw/master/rokai_user_manual.pdf"),
         about_question("Prefer to run locally? Download source code at ", "Github page", "https://github.com/serhan-yilmaz/Rokai"),
-        contact_question("Have a quick question or have suggestions?", "Contact us", "contactLink", "Leave a comment", "leaveCommentLink", actLink = T),
+        contact_question("Have a quick question or suggestions?", "Contact us", "contactLink", "Use the feature request box", "leaveCommentLink", actLink = T),
         #about_question("Have a quick question or have suggestions?", "Contact us", "contactLink", actLink = T),
         #about_question("Have a quick question or need some help?", "Contact us", "contactLink", actLink = T),
         about_question("Use RoKAI in your research?", "Please cite us", "citeLink", actLink = T),
@@ -198,7 +198,7 @@ about_tab <- function(){
         desc_text("If you have any questions, please contact <serhan.yilmaz@case.edu>"),
         
         tags$h4("Feature Suggestions & Comments", style="font-weight:bold;"),
-        desc_text("To leave feedback, request a new feature or to report a bug, please use the form below:"),
+        desc_text("To give feedback, request a new feature or to report a bug, please use the form below:"),
         tags$div(
         tags$div(style="display:inline-block; margin: 2px 0px 2px 0px;",
           textInput("textinput_name", "Name", value = "", width = 220, placeholder = "(Optional)")
