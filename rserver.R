@@ -166,6 +166,24 @@ server <- function(input, output, session) {
   initialized <- reactiveVal(TRUE)
   #tutorial <- reactiveVal(FALSE)
   
+  observeEvent(input$initialized, {
+    main_logging("Session Initialized")
+    # message("[Running] Loading packages...")
+    # library(xtable)
+    # library(Gmisc)
+    # library(Hmisc)
+    # library(htmlTable)
+    # #library(boot)
+    # library(flextable)
+    # library(officer)
+    # library(haven)
+    # library(tools)
+    # library(tidyverse)
+    # source("table1.R")
+    # message("[Done] Loading packages.")
+    # initialized(TRUE);
+  })
+  
   reactive_network <- reactive({
     req(initialized())
     switch (network_value(),
@@ -202,6 +220,11 @@ server <- function(input, output, session) {
     cat(paste(as.character(Sys.time()), " - " ,  session_id(), ": ", message, "\n", sep = ""), file = filepath, append = T)
   }
   
+  feedback_logging <- function(message){
+    filepath = paste("logs/feedback_log_", version_text(), ".txt", sep = "")
+    cat(paste(as.character(Sys.time()), " - " ,  session_id(), ": ", message, "\n", sep = ""), file = filepath, append = T)
+  }
+  
   observeEvent(input$interactiveDemo, {
     session$sendCustomMessage('interactive_demo_message', "")
     main_logging("Interactive Demo")
@@ -210,6 +233,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$contactLink, {
+    updateTabsetPanel(session, "aboutTabset", "Contact")
+  })
+  
+  observeEvent(input$leaveCommentLink, {
     updateTabsetPanel(session, "aboutTabset", "Contact")
   })
   
@@ -247,6 +274,42 @@ server <- function(input, output, session) {
     }
       
   })
+  
+  current_message_type <- reactive({
+    switch(as.numeric(input$message_type), "Feature Request", "Comment", "Bug Report")
+           
+  })
+  
+  set_enabled_feature_suggestion_box <- function(enabled){
+    if(enabled){
+      shinyjs::enable("textinput_name")
+      shinyjs::enable("textinput_org")
+      shinyjs::enable("textinput_email")
+      shinyjs::enable("message_type")
+      shinyjs::enable("textinput_message")
+      shinyjs::enable("buttonLeaveFeedback")
+    } else {
+      shinyjs::disable("textinput_name")
+      shinyjs::disable("textinput_org")
+      shinyjs::disable("textinput_email")
+      shinyjs::disable("message_type")
+      shinyjs::disable("textinput_message")
+      shinyjs::disable("buttonLeaveFeedback")
+    }
+  }
+  
+  observeEvent(input$buttonLeaveFeedback, {
+    if(nchar(input$textinput_message) > 0){
+      main_logging(paste("Left a Feedback - Category: ", current_message_type(), sep =))
+      feedback_logging(paste(current_message_type(), " - Name: ", input$textinput_name, ", Org: ", input$textinput_org, ", Email: ", input$textinput_email, "\nMessage: ", input$textinput_message, sep = ""))
+      set_enabled_feature_suggestion_box(enabled=F)
+      delay(300, set_enabled_feature_suggestion_box(enabled=T))
+      delay(300, toastr_success("Your response has been saved. Thank you!", closeButton = F))
+    } else {
+      toastr_warning("The message field cannot be empty.", closeButton = F)
+    }
+  })
+  
   
   observeEvent(input$file1, {
     inFile <- input$file1

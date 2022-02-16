@@ -38,6 +38,20 @@ multiChoicePicker <- function(id, label, choices, selected = choices[1], isInlin
   return (R)
 }
 
+
+foList <- function(...){
+  x <- list(...)
+  outList <- list()
+  previous = NULL
+  for(i in seq(1, length(x), 1)){
+    if((i %% 2) == 0){
+      outList[[previous]] <- x[[i]]
+    }
+    previous = x[[i]]
+  }
+  return(outList)
+}
+
 paper_txt <- function(authors, date, title, journal, link, misc){
   tags$div(
     class = "inline", 
@@ -61,6 +75,7 @@ desc_text <- function(qtxt){
   )
 }
 
+
 dataset_version_text <- function(dataset, date, link){
   dataset <- paste(dataset, ":", sep = "")
   tags$tr(
@@ -83,6 +98,41 @@ about_question <- function(qtxt, atxt, href, actLink = FALSE){
     link
   )
 }
+
+contact_question <- function(qtxt, atxt1, href1, atxt2, href2, actLink = FALSE){
+  if(actLink){
+    link <- actionLink(style = "font-size: large;", href1, atxt1)
+  } else {
+    link <- tags$a(style = "font-size: large;", atxt1, href=href1)
+  }
+  
+  if(actLink){
+    link2 <- actionLink(style = "font-size: large;", href2, atxt2)
+  } else {
+    link2 <- tags$a(style = "font-size: large;", atxt2, href=href2)
+  }
+  
+  tags$div(
+    class = "inline", 
+    style = "margin-bottom: 8px; margin-top; 8px;", 
+    tags$text(style = "font-size: large;", qtxt),
+    link,
+    tags$text(style = "font-size: large;", " or "), 
+    link2
+  )
+}
+
+
+
+on_ready <- paste(
+  "$(function() {",
+  "$(document).on('shiny:connected', function(e) {",
+  "Shiny.setInputValue('initialized', 1);",
+  "});",
+  "",
+  "});",
+  sep = "\n"
+)
 
 
 #version_style <- function(){"font-size: 12px; color:#737373;"}
@@ -113,7 +163,9 @@ about_tab <- function(){
         about_question("Using it first time? To help getting started, try our ", "Interactive Tutorial", "interactiveDemo", actLink = T),
         #about_question("Using it first time? To help getting started, read our ", "User Manual", "https://github.com/serhan-yilmaz/RoKAI/raw/master/rokai_user_manual.pdf"),
         about_question("Prefer to run locally? Download source code at ", "Github page", "https://github.com/serhan-yilmaz/Rokai"),
-        about_question("Have a quick question or need some help?", "Contact us", "contactLink", actLink = T),
+        contact_question("Have a quick question or have suggestions?", "Contact us", "contactLink", "Leave a comment", "leaveCommentLink", actLink = T),
+        #about_question("Have a quick question or have suggestions?", "Contact us", "contactLink", actLink = T),
+        #about_question("Have a quick question or need some help?", "Contact us", "contactLink", actLink = T),
         about_question("Use RoKAI in your research?", "Please cite us", "citeLink", actLink = T),
         about_question("Thank you for using RoKAI App!", "", ""),
         #tags$text(style = "font-size: large;", "Have a quick question or need some help?"), tags$a(style = "font-size: large;", "Contact us", href="#chapter4"),
@@ -136,11 +188,40 @@ about_tab <- function(){
         style = "padding-bottom:5px; padding-top:2px; margin:0px;", #  height: 78px;
         #tags$p(),
         tags$h3("Contact", style="font-weight:bold;"),
-        desc_text("RoKAI is designed by Serhan Yilmaz and Mehmet Koyuturk at Case Western Reserve University."),
+       # desc_text("RoKAI is designed by Serhan Yilmaz and Mehmet Koyuturk at Case Western Reserve University."),
+       tags$div(
+         class = "inline", 
+         style = "font-size: medium; margin-bottom: 6px; margin-top; 6px;", 
+         "RoKAI is designed by ", 
+         tags$a("Serhan Yilmaz", href = "http://www.serhanyilmaz.com/", target="_blank"), " and ", tags$a("Mehmet Koyuturk", href = "http://compbio.case.edu/koyuturk/", target="_blank"), " at Case Western Reserve University.",
+       ),
         desc_text("If you have any questions, please contact <serhan.yilmaz@case.edu>"),
         
-        tags$h3("Acknowledgement", style="font-weight:bold;"),
-        desc_text("This work was supported by National Institute of Health (NIH) grant R01-LM012980 from the National Libraries of Medicine.")
+        tags$h4("Feature Suggestions & Comments", style="font-weight:bold;"),
+        desc_text("To leave feedback, request a new feature or to report a bug, please use the form below:"),
+        tags$div(
+        tags$div(style="display:inline-block; margin: 2px 0px 2px 0px;",
+          textInput("textinput_name", "Name", value = "", width = 220, placeholder = "(Optional)")
+        ),
+        tags$div(style="display:inline-block; margin: 2px 8px 2px 8px; ",
+          textInput("textinput_org", "Organization", value = "", width = 220, placeholder = "(Optional)"),
+        ),
+        ),
+        tags$div(
+        tags$div(style="display:inline-block; margin: 2px 0px 2px 0px;",
+          textInput("textinput_email", "Contact Email", value = "", width = 270, placeholder = "(Optional)"),
+        ), 
+        tags$div(style="display:inline-block; margin: 2px 8px 2px 8px;",
+           selectInput("message_type", "Category", 
+                       choices = foList("Feature Request", 1, "Comment", 2, "Bug Report", 3), 
+                       selected = 1, selectize = F, width = 170)    
+        ),
+        ),
+        tags$div(style = "margin: 2px 0px 2px 0px;",
+          textAreaInput("textinput_message", "Message", height = 150, value = "", width = 460),
+          actionButton("buttonLeaveFeedback", "Submit", style = "margin-top: 4px;"),
+        ),
+        desc_text("The name, organization and email fields are optional. Please enter a contact information if you would like to be notified about future updates (e.g., if the requested feature is implemented). "),
       )
     ),
     tabPanel(
@@ -157,7 +238,10 @@ about_tab <- function(){
         paper_txt("Hornbeck, P. V. et al.", "2015", "Phosphositeplus, 2014: mutations, ptms and recalibrations.", "Nucleic acids research", "https://doi.org/10.1093/nar/gku1267", "43(D1), D512-D520"),
         paper_txt("Licata, L. et al.", "2020", "SIGNOR 2.0, the SIGnaling network open resource 2.0: 2019 update.", "Nucleic acids research", "https://doi.org/10.1093/nar/gkz949", "48(D1), D504-D510"),
         paper_txt("Minguez, P. et al.", "2012", "PTMcode: a database of known and predicted functional associations between post-translational modifications in proteins.", "Nucleic acids research", "https://doi.org/10.1093/nar/gks1230", "41(D1), D306-D311"),
-        paper_txt("Szklarczyk, D. et al.", "2014", "STRING v10: protein–protein interaction networks, integrated over the tree of life.", "Nucleic acids research", "https://doi.org/10.1093/nar/gku1003", "43(D1), D447-D452")
+        paper_txt("Szklarczyk, D. et al.", "2014", "STRING v10: protein–protein interaction networks, integrated over the tree of life.", "Nucleic acids research", "https://doi.org/10.1093/nar/gku1003", "43(D1), D447-D452"),
+        
+        tags$h3("Acknowledgement", style="font-weight:bold;"),
+        desc_text("This work was supported by National Institute of Health (NIH) grant R01-LM012980 from the National Libraries of Medicine.")
       )
     ),
     tabPanel(
@@ -243,7 +327,8 @@ ui <- fluidPage(
     tags$link(rel="shortcut icon", href="favicon.png"),
     tags$meta(name="description", content="RoKAI: Robust Inference of Kinase Activity using functional networks"),
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
-    includeHTML(("www/google-analytics.html"))
+    includeHTML(("www/google-analytics.html")),
+    tags$script(on_ready)
   ),
   # tags$head(
   #   tags$script("$(document).ready(function(){

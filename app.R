@@ -4,5 +4,3 @@ source("ui.R");
 options(shiny.sanitize.errors = F)
 shinyApp(ui, server, options = list(sanitize.errors = F))
 
-
-
