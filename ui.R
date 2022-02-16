@@ -370,10 +370,19 @@ ui <- fluidPage(
             class = "inline-block", 
           #  style = "align: center",
           fluidRow(column(12, align = "left", 
-          actionButton("buttonSampleData", "Load Sample Data"),
-          tags$b(style = "margin-left: 4px; margin-right: 4px;"), 
-          downloadButton('buttonDownloadSampleData', 'Download')
-          )
+          helper(tags$div(
+            actionButton("buttonSampleData", "Load Sample Data"),
+            tags$b(style = "margin-left: 4px; margin-right: 4px;"), 
+            downloadButton('buttonDownloadSampleData', 'Download')
+          ), type = "inline", id = "input_data_tooltip",
+          , title = "Input Data Format",
+          content = c("To use rokai with your data, you only need a single input file having three columns:", 
+                                    paste("<b>Protein:</b>", "The Uniprot protein identifier. "),
+                                    paste("<b>Position:</b>", "The position of the site on the protein."),
+                                    paste("<b>Quantification:</b>", "The phosphorylation of the site provided as log-fold change."),
+                                          "Note that, you can download the sample data to see an example. ")          )
+          ),
+          tippy_this("input_data_tooltip", "<span style='font-size:14px; margin: 0px;'>Click to learn about the input data format.<span>", allowHTML = TRUE), 
           ),
           #actionButton("buttonDownloadSampleData", "Download")
           )#, 
