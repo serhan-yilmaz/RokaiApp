@@ -14,6 +14,8 @@ library(shinyBS)
 library(shinyhelper)
 library(tippy)
 
+#library(shinydashboard)
+
 source("current_version.R")
 
 ## library(shinycssloaders) - Dependency
@@ -222,6 +224,13 @@ about_tab <- function(){
           actionButton("buttonLeaveFeedback", "Submit", style = "margin-top: 4px;"),
         ),
         desc_text("The name, organization and email fields are optional. Please enter a contact information if you would like to be notified about future updates (e.g., if the requested feature is implemented). "),
+       # bsCollapse(id = "collapseExample", open = "Panel 2",
+       #            bsCollapsePanel("Panel 1", "This is a panel with just text ",
+       #                            "and has the default style. You can change the style in ",
+       #                            "the sidebar.", style = "info")
+                 # bsCollapsePanel("Panel 2", "This panel has a generic plot. ",
+                  #                "and a 'success' style.", plotOutput("genericPlot"), style = "success")
+       # )
       )
     ),
     tabPanel(
@@ -459,6 +468,22 @@ ui <- fluidPage(
 #     "<serhan.yilmaz@case.edu>"
 #   )
 # ),
+
+tags$div(
+  class = "panel panel-default",
+  style = "margin:0px; margin-bottom:5px;",
+  tags$div(
+    class = "panel-body",
+    style = "padding-bottom:10px; padding-top:10px; margin:0px;", #  height: 78px;
+    #tags$p(),
+    "We are developing a new tool to analyze phospho-proteomics data. To access it, please visit: ",
+    #tags$br(),
+    tags$a("http://explorer.rokai.io", href="http://explorer.rokai.io"),
+   # tags$a("http://explorer.rokai.io", href="http://explorer.rokai.io"),
+    #tags$a("https://rokai.io/explorer", href="https://rokai.io/explorer"),
+    #"<serhan.yilmaz@case.edu>"
+  )
+)
 
 # tags$div(
 #   class = "panel panel-default",

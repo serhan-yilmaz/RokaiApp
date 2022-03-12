@@ -149,7 +149,7 @@ guide <- Cicerone$
 server <- function(input, output, session) {
   
   observe_helpers(withMathJax = TRUE)
-  track_usage(storage_mode = store_json(path = "logs/"))
+  track_usage(storage_mode = store_json(path = "logs/by_instance/"))
   
   observe({
     invalidateLater(1000)
@@ -263,6 +263,7 @@ server <- function(input, output, session) {
     network_value("uniprot.human")
     myvalue("sample")
     main_logging("Sample Data")
+    reset('file1')
     
     if(input$mainTabset == "About"){
       updateTabsetPanel(session, "mainTabset", "Plot")
@@ -272,7 +273,6 @@ server <- function(input, output, session) {
       #message("abcd")
       guide$move_forward()
     }
-      
   })
   
   current_message_type <- reactive({
@@ -672,5 +672,13 @@ server <- function(input, output, session) {
                                  paging = TRUE, searching = TRUE, pageLength = 10, dom = 'Bfrtip', buttons = list(list(extend = 'csv', filename = fn), list(extend = 'excel', filename = fn)))) %>% 
       formatSignif('PValue', 3) %>% formatSignif('FDR', 3) 
   })
+  
+  sessionTimeStart <- reactiveVal(Sys.time())
+  
+  session$onSessionEnded(function() {
+    abcd <- round(as.double(difftime(Sys.time(), isolate(sessionTimeStart()), units = "mins")), 1)
+    isolate(main_logging(paste("Session Ended: ", abcd, " minutes passed", sep = "")))
+  })
+  
   
 }
