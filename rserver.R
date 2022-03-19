@@ -149,7 +149,7 @@ guide <- Cicerone$
 server <- function(input, output, session) {
   
   observe_helpers(withMathJax = TRUE)
-  track_usage(storage_mode = store_json(path = "logs/by_instance/"))
+  #track_usage(storage_mode = store_json(path = "logs/by_instance/"))
   
   observe({
     invalidateLater(1000)
