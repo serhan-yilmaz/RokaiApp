@@ -149,7 +149,7 @@ guide <- Cicerone$
 server <- function(input, output, session) {
   
   observe_helpers(withMathJax = TRUE)
-  #track_usage(storage_mode = store_json(path = "logs/by_instance/"))
+  track_usage(storage_mode = store_json(path = "logs/by_instance/"))
   
   observe({
     invalidateLater(1000)
@@ -375,19 +375,27 @@ server <- function(input, output, session) {
     T <- reactive_dataset()
     NetworkData <- reactive_network()
     T$Position = gsub('\\D+','', T$Position)
-    
     T$ID = paste(T$Protein, T$Position, sep="_")
+    
+    valids = !is.na(T$Quantification)
+    T = T[valids, ]
+    
+    validate(
+      need(nrow(T)>0, "File format error: There are no rows having non-missing values in the Quantification column.")
+    )
+
     indices = match(T$ID, NetworkData$Site$Identifier)
     valids = !is.na(indices);
     X = rep(NA, nrow(NetworkData$Site))
     X[indices[valids]] = T$Quantification[valids]
+    #browser()
     
     validate(
       need(nnzero(!is.na(X))>0, "Input mapping failed. Please check if the correct reference proteome is selected.")
     )
+    
     if((myvalue() == "upload") && (nnzero(T$Quantification < 0) == 0)){
       toastr_warning("Warning! No negatives values are detected in input data. Please make sure that the input quantifications are log transformed.", closeButton = T, timeOut = 50000, extendedTimeOut = 50000)
-    #  message("xjfj")
     }
     
     return (X)
@@ -395,6 +403,36 @@ server <- function(input, output, session) {
   
   
   preprocessed_dataset <- reactive({
+    #e <- evaluate::try_capture_stack({mapped_dataset()}, environment())
+   # browser()
+    # withCallingHandlers({
+    #   shinyjs::html("text", "")
+    #   withVisible(mapped_dataset())
+    # },
+    # error = function(m) {
+    #   # Format message
+    # 
+    #   simpleMessage = F
+    #   time = format(Sys.time(), "%Y-%m-%d %H:%M:%OS3")
+    #   #txt = conditionMessage(m)
+    #   txt = m$message
+    #   if (!simpleMessage) txt = paste(txt, "\n", sep = "")
+    #   msg = paste(time, txt, sep = " ")
+    #   calls = sys.calls()
+    #   calls = calls[1:length(calls) - 1]
+    #   trace = limitedLabels(c(calls, attr(m, "calls")))
+    #   if (!simpleMessage && length(trace) > 0) {
+    #     trace = trace[(length(trace)):1]
+    #     msg = paste(msg, "  ", paste("at", trace, collapse = "\n  "), "\n", sep = "")
+    #   }
+    #   #msg2 <- rlang::last_trace()
+    #   #browser()
+    #   
+    #   a <- traceback(3)
+    #   #browser()
+    #   output$text <- renderText(a)
+    #   #shinyjs::html(id = "text", html = msg, add = TRUE)
+    # })
     req(mapped_dataset())
     
     X <- mapped_dataset()
@@ -462,6 +500,8 @@ server <- function(input, output, session) {
     Wk2s <- selected_ks_network()
     nSite = ncol(Wk2s)
     
+   # browser()
+    
     wk2s = Wk2s[, validSites];
     nSubs = (wk2s %*% rep(1, length(Xv)))
     
@@ -490,6 +530,7 @@ server <- function(input, output, session) {
         Ws2s = Ws2s | NetworkData$net$Wsite2site.coev
       }
       Ws2s = Ws2s[validSites, validSites]
+      #browser()
       rc <- rokai_core(Xv, Sx, wk2s, Wk2k, Ws2s)
       #Xs = rc$Xs
       Fk = rokai_kinase_weights(Xv, wk2s, rc$F)

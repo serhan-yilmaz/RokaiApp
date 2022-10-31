@@ -478,12 +478,14 @@ tags$div(
     #tags$p(),
     "We are developing a new tool to analyze phospho-proteomics data. To access it, please visit: ",
     #tags$br(),
-    tags$a("http://explorer.rokai.io", href="http://explorer.rokai.io"),
+    #tags$a("http://explorer.rokai.io", href="http://explorer.rokai.io"),
    # tags$a("http://explorer.rokai.io", href="http://explorer.rokai.io"),
-    #tags$a("https://rokai.io/explorer", href="https://rokai.io/explorer"),
+    tags$a("https://rokai.io/explorer", href="https://rokai.io/explorer"),
     #"<serhan.yilmaz@case.edu>"
   )
 )
+#, verbatimTextOutput("text")
+#textOutput("text")
 
 # tags$div(
 #   class = "panel panel-default",
