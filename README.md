@@ -9,3 +9,10 @@ To run RoKAI App locally on your R installation, simply run:
 library(shiny)
 runGitHub("rokaiapp", "serhan-yilmaz")
 ```
+
+### Running an earlier version
+You can also run an earlier version of the application. For this purpose, specify the ref parameter:
+```
+library(shiny)
+runGitHub("rokaiapp", "serhan-yilmaz", ref = "v2.1.4")
+```
