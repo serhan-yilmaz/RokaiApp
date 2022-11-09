@@ -9,7 +9,7 @@ library(shiny)
 runGitHub("rokaiapp", "serhan-yilmaz")
 ```
 ### Running an earlier version of the application
-You can also run an earlier version of the application. For this purpose, specify the ref parameter to be one of the [release versions](https://github.com/serhan-yilmaz/RokaiApp/releases):
+If desired, you can also run an earlier version of the application. For this purpose, specify the ref parameter to be one of the [release versions](https://github.com/serhan-yilmaz/RokaiApp/releases), e.g.:
 ```
 library(shiny)
 runGitHub("rokaiapp", "serhan-yilmaz", ref = "v2.1.4")
