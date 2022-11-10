@@ -8,7 +8,7 @@
 
 ### Backward Compatibility
 
-#### Disabling Phosphatase Analysis
+#### Disabling phosphatase analysis
 
 #### Selecting NetworkData version
 
