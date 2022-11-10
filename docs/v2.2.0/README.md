@@ -9,7 +9,7 @@
 ### Additional
 
 #### Rokai-NetworkData available to download
-You can download the NetworkData used in Rokai and access the code used to preprocess the data from [Rokai-NetworkData github page](https://github.com/serhan-yilmaz/Rokai-NetworkData).
+You can access the code used to preprocess the data from [Rokai-NetworkData github page](https://github.com/serhan-yilmaz/Rokai-NetworkData). The processed NetworkData is available to download in Matlab (``.mat``) and R (``.rds``) file formats. 
 
 #### Interface updates
 
