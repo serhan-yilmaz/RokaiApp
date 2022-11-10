@@ -17,9 +17,9 @@
 #### Disabling phosphatase analysis
 
 #### Selecting NetworkData version
+For compability with results of earlier versions, you can now select which NetworkData version to use in the analysis. For this purpose, visit the ``About -> Versions`` tab within the app and set the NetworkData version from the provided list. 
 
 #### Running a local image of an older version
-
 You can also run an earlier version of the application locally, by specifying the ref parameter of ``runGithub`` command to be one of the [release versions of RokaiApp](https://github.com/serhan-yilmaz/RokaiApp/releases), e.g.:
 ```
 library(shiny)
