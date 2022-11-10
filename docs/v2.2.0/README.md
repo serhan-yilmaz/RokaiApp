@@ -20,6 +20,6 @@
 
 ### Upcoming
 
-#### Bulk computations
+#### Performing Bulk Computations
 
-#### Any other feedback?
+#### Any Feedback is Welcome!
