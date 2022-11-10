@@ -12,7 +12,14 @@
 
 #### Selecting NetworkData version
 
-
 #### Running a local image of an older version
 
+### Additional
 
+#### Rokai-NetworkData available to download
+
+### Upcoming
+
+#### Bulk computations
+
+#### Any other feedback?
