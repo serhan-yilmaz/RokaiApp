@@ -2,6 +2,10 @@
 
 ### Phosphatase Activity Inference
 
+Starting on v2.2.0, there is now an option to analyze the phosphatases and infer their activities in addition to the kinases! The analysis is done the same way it is done for kinases, only the direction is inverted. That is, a phosphatase is inferred to be active if its known substrates (or other phosphosites in its functional neighborhood) are phosphorylated less than expected.
+
+For this analysis, the phosphatase-substrate interactions in the [DEPOD database](http://depod.bioss.uni-freiburg.de/) are used.  
+
 ### Updated Datasets - Latest Available
 
 ### Added Rat Reference Proteome
