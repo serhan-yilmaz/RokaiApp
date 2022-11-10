@@ -4,7 +4,7 @@
 
 ### Updated Datasets - Latest Available
 
-### Rat Reference Proteome
+### Added Rat Reference Proteome
 
 ### Backward Compatibility
 
