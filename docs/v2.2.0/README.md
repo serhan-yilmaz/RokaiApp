@@ -2,7 +2,7 @@
 
 ### Phosphatase Activity Inference
 
-Starting on Rokai App v2.2.0, there is now an option to analyze the phosphatases and infer their activities in addition to the kinases! The analysis is done the same way it is done for kinases, only the direction is inverted. That is, a phosphatase is inferred to be active if its known substrates (or other phosphosites in its functional neighborhood) are phosphorylated less than expected.
+Starting on Rokai App v2.2.0, there is now an option to analyze the phosphatases and infer their activities in addition to the kinases! The analysis is done the same way it is done for kinases, only the direction is inverted. That is, a phosphatase is inferred to be active if its known substrates (or other phosphosites in its functional neighborhood) are phosphorylated less than expected (i.e., having a negative log-fold change). 
 
 For this analysis, the phosphatase-substrate interactions in the [DEPOD database](http://depod.bioss.uni-freiburg.de/) are used. Overall, for ``human`` (``mouse``) species, ``1531`` (``740``) new interactions are added to the Rokai network data, which are between ``77``(``75``) phosphatases and ``478`` (``283``) phosphosites.
 
