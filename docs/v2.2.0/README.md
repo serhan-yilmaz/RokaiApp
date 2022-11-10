@@ -6,6 +6,12 @@
 
 ### Added Rat Reference Proteome
 
+### Additional
+
+#### Rokai-NetworkData available to download
+
+#### Interface updates
+
 ### Backward Compatibility
 
 #### Disabling phosphatase analysis
@@ -13,10 +19,6 @@
 #### Selecting NetworkData version
 
 #### Running a local image of an older version
-
-### Additional
-
-#### Rokai-NetworkData available to download
 
 ### Upcoming
 
