@@ -20,7 +20,7 @@
 
 #### Running a local image of an older version
 
-You can also run an earlier version of the application locally, by specifying the ref parameter of ``runGithub`` command to be one of the [release versions of RokaiApp](https://github.com/serhan-yilmaz/RokaiApp/releases), e.g.:
+You can also run an earlier version of the application locally, by specifying the ref parameter of ``runGithub`` command to be one of the [release versions of RokaiApp](https://github.com/serhan-yilmaz/RokaiApp/releases), e.g.,:
 ```
 library(shiny)
 runGitHub("rokaiapp", "serhan-yilmaz", ref = "v2.1.4")
@@ -31,4 +31,4 @@ runGitHub("rokaiapp", "serhan-yilmaz", ref = "v2.1.4")
 
 #### Performing Bulk Computations
 
-#### Any Feedback is Welcome!
+#### Any Other Feedback is Welcome!
