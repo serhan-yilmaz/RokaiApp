@@ -9,6 +9,7 @@
 ### Additional
 
 #### Rokai-NetworkData available to download
+You can download the NetworkData used in Rokai and access data preprocessing code from [Rokai-NetworkData github page](https://github.com/serhan-yilmaz/Rokai-NetworkData).
 
 #### Interface updates
 
