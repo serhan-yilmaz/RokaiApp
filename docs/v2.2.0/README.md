@@ -15,7 +15,7 @@
 ### Backward Compatibility
 
 #### Disabling phosphatase analysis
-Since the phosphatases are also included in the functional networks with this option, there can be slight changes in the kinase results as well. For backwards compatibility, you can turn this option off to remove phosphatases from the analysis by deselecting the ``Include~phosphatases~in~the~analysis`` tickbox.
+Since the phosphatases are also included in the functional networks with this option, there can be slight changes in the kinase results as well. For backwards compatibility, you can turn this option off to remove phosphatases from the analysis by deselecting the ``Include_phosphatases_in_the_analysis`` tickbox.
 
 #### Selecting NetworkData version
 For compability with results of earlier versions, you can now select which NetworkData version to use in the analysis. For this purpose, visit the ``About -> Versions`` tab within the app and set the desired NetworkData version from the provided list. 
