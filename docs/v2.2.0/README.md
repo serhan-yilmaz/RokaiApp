@@ -26,7 +26,7 @@ Protein-Protein Interactions (between kinases, STRING): 12668->18404 interaction
 ```
 
 ### Added Rat Reference Proteome
-In addition to ``human`` and ``mouse``, ``rat`` proteome is also available for analysis now! For ``rat`` proteome, the number of interactions in the Rokai network are as follows:
+In addition to human and mouse, ``rat`` proteome is also available for analysis now! For ``rat`` proteome, the number of interactions in the Rokai network are as follows:
 ```
 Reference proteome: 32524 phosphosites within 7402 proteins
 Kinase-Substrate Interactions (PSP+Signor): 3992 interactions between 103 Kinases and 2747 phosphosites (within 923 proteins)
