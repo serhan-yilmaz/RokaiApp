@@ -1,1 +1,1 @@
-version_text <- function(){"v2.1.4"}
+version_text <- function(){"v2.2.0"}

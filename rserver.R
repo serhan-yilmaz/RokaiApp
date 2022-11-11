@@ -76,6 +76,9 @@ guide <- Cicerone$
   step("inference_options_div",
        "Inference Options", 
        "(Optional) Use this area to customize the options for kinase activity inference.")$
+  step("phosphatase_options_div",
+       "Phosphatases", 
+       "Here, you can choose whether to include phosphatases in the analysis or not.")$
   step(
     "buttonSampleData",
     "Sample Data",
@@ -94,7 +97,7 @@ guide <- Cicerone$
     step(
       el = "kinase_plot_div",
       title = "Kinase Plot",
-      description = "This plot shows the inferred activities of kinases that are the most significant. You can use the options in the bottom panel to customize the plot."
+      description = "This plot shows the inferred activities of kinases (or phosphatases) that are the most significant. You can use the options in the bottom panel to customize the plot."
       #on_highlight_started = "Shiny.setInputValue('foo2', 'qfds', {priority: 'event'});",
       #tab = "Plot",
       #tab_id = "mainTabset"
@@ -119,7 +122,7 @@ guide <- Cicerone$
   step(
     el = "kinase_table_div",
     title = "Kinase Table",
-    description = "This table contains information on inferred kinase activies. Using the control panel on the top, you can search for a specific kinase or download the results. "
+    description = "This table contains information on the inferred activies. Using the control panel on the top, you can search for a specific kinase or download the results. "
     #on_highlight_started = "Shiny.setInputValue('foo2', 'qfds', {priority: 'event'});",
     #tab = "Plot",
     #tab_id = "mainTabset"
@@ -134,7 +137,7 @@ guide <- Cicerone$
   step(
     el = "kinase_targets_div",
     title = "Kinase Targets",
-    description = "This table contains information on the known kinase targets. Using the search bar on the top, you can search for a specific kinase or phosphosite. "
+    description = "This table contains information on known substrates of kinases and phosphatases. Using the search bar on the top, you can search for a specific kinase or phosphosite. "
     #on_highlight_started = "Shiny.setInputValue('foo2', 'qfds', {priority: 'event'});",
     #tab = "Plot",
     #tab_id = "mainTabset"
@@ -148,7 +151,7 @@ guide <- Cicerone$
 
 server <- function(input, output, session) {
   
-  observe_helpers(withMathJax = TRUE)
+  observe_helpers(withMathJax = TRUE, help_dir = "helpfiles")
   #track_usage(storage_mode = store_json(path = "logs/by_instance/"))
   
   observe({
@@ -171,6 +174,7 @@ server <- function(input, output, session) {
     if(!dir.exists("logs/")){
       dir.create("logs/")
     }
+    reactive_network_initial()
     # message("[Running] Loading packages...")
     # library(xtable)
     # library(Gmisc)
@@ -187,17 +191,95 @@ server <- function(input, output, session) {
     # initialized(TRUE);
   })
   
-  reactive_network <- reactive({
+  reactive_network_initial <- reactive({
     req(initialized())
-    switch (network_value(),
-            "uniprot.human" = fname <- "rokai_network_data_uniprotkb.rds",
-            "uniprot.mouse" = fname <- "rokai_network_data_uniprotkb_mouse.rds",
-            validate(
-              need(FALSE, "Invalid network state.")
-            )
-    )
+    message(input$dataset_version_selection)
+    flag_after_v2.2.0 = TRUE
+    if(input$dataset_version_selection == 1){ # Latest
+      switch (network_value(),
+              "uniprot.human" = fname <- "rokai_network_data_uniprotkb_human.rds",
+              "uniprot.mouse" = fname <- "rokai_network_data_uniprotkb_mouse.rds",
+              "uniprot.rat" = fname <- "rokai_network_data_uniprotkb_rat.rds",
+              validate(
+                need(FALSE, "Invalid network state.")
+              )
+      )
+    } else {
+      switch (network_value(),
+              "uniprot.human" = fname <- "rokai_network_data_uniprotkb_2021.rds",
+              "uniprot.mouse" = fname <- "rokai_network_data_uniprotkb_mouse_2021.rds",
+              "uniprot.rat" = validate(
+                need(FALSE, "Rat reference proteome is only available in NetworkData versions after v2.2.0.")
+              ), 
+              validate(
+                need(FALSE, "Invalid network state.")
+              )
+      )
+      flag_after_v2.2.0 = FALSE
+    }
     NetworkData <- readRDS(paste("data/", fname, sep =""));
+    NetworkData$Kinase$Type = "Kinase"
+    nKinase = nrow(NetworkData$Kinase)
+    nSite = nrow(NetworkData$Site)
+    NetworkData$net$Wkin2site.depod = sparseMatrix(i = integer(0), j = integer(0), 
+                                           dims = c(nKinase, nSite))
+    
+    NetworkData$net$flag_after_v2.2.0 = flag_after_v2.2.0
+    if(!flag_after_v2.2.0){
+      NetworkData$net$version.uniprot = '2021-05-01';
+      NetworkData$net$version.depod = 'N/A'
+    }
+    foUpdateVersions(NetworkData)
     return (NetworkData)
+  })
+  
+  observeEvent(input$dataset_version_selection, {
+    reactive_network_initial()
+  })
+  
+  reactive_network_with_phosphatase <- reactive({
+    NetworkData <- reactive_network_initial()
+    Phosphatase <- data.frame(
+      KinaseID = NetworkData$Phosphatase$ID,
+      KinaseName = paste("Phospha-", NetworkData$Phosphatase$Gene, sep = ""),
+      Gene = NetworkData$Phosphatase$Gene,
+      Type = "Phosphatase"
+    )
+    nKinase = nrow(NetworkData$Kinase)
+    nPhosphatase = nrow(Phosphatase)
+    Wphospha2site = NetworkData$net$Wphospha2site
+    NetworkData2 = NetworkData
+    NetworkData2$Kinase = rbind(NetworkData$Kinase, Phosphatase)
+    NetworkData2$Wkin2site = rbind(NetworkData2$Wkin2site, Wphospha2site)
+    NetworkData2$net$Wkin2site = rbind(NetworkData2$net$Wkin2site, Wphospha2site)
+    NetworkData2$net$Wkin2site.psp = rbind(NetworkData2$net$Wkin2site.psp, Wphospha2site)
+    NetworkData2$net$Wkin2site.psp.base = rbind(NetworkData2$net$Wkin2site.psp.base, Wphospha2site)
+    NetworkData2$net$Wkin2site.signor = rbind(NetworkData2$net$Wkin2site.signor, Wphospha2site)
+    NetworkData2$net$Wkin2kin = NetworkData$net$Wkin2kin.phospha
+    #Wkin2kinx = sparseMatrix(i = 1:nKinase, j = 1:nKinase, dims = c(nKinase, nKinase+nPhosphatase))
+    #NetworkData2$net$Wkin2kin = (t(Wkin2kinx) %*% NetworkData2$net$Wkin2kin) %*% Wkin2kinx
+    Wphospha2kinx = sparseMatrix(i = 1:nPhosphatase, j = nKinase+(1:nPhosphatase), dims = c(nPhosphatase, nKinase+nPhosphatase))
+    NetworkData2$net$Wkin2site.depod = (t(Wphospha2kinx) %*% NetworkData2$net$Wphospha2site)
+    return(NetworkData2)
+  })
+  
+  foUpdateVersions <- function(NetworkData){
+    runjs(paste("document.getElementById('Uniprot_txt').innerHTML = '", NetworkData$net$version.uniprot[1], "';", sep = ""))
+    runjs(paste("document.getElementById('PhosphoSitePlus_txt').innerHTML = '", NetworkData$net$version.psp[1], "';", sep = ""))
+    runjs(paste("document.getElementById('Signor_txt').innerHTML = '", NetworkData$net$version.signor[1], "';", sep = ""))
+    runjs(paste("document.getElementById('STRING_txt').innerHTML = '", NetworkData$net$version.string[1], "';", sep = ""))
+    runjs(paste("document.getElementById('PTMcode_txt').innerHTML = '", NetworkData$net$version.ptmcode[1], "';", sep = ""))
+    runjs(paste("document.getElementById('DEPOD_txt').innerHTML = '", NetworkData$net$version.depod[1], "';", sep = ""))
+  }
+  
+  reactive_network <- reactive({
+    if(input$includePhosphatases){
+      NetworkData <- reactive_network_initial()
+      validate(need(NetworkData$net$flag_after_v2.2.0, "Phosphatase data is only available in NetworkData versions after v2.2.0."))
+      reactive_network_with_phosphatase()
+    } else {
+      reactive_network_initial()
+    }
   })
   
   reactive_dataset <- reactive({
@@ -215,7 +297,8 @@ server <- function(input, output, session) {
   refProteomeValue <- reactive({
     switch(input$refproteome, 
            "Uniprot Human" = "uniprot.human",
-           "Uniprot Mouse" = "uniprot.mouse")
+           "Uniprot Mouse" = "uniprot.mouse", 
+           "Uniprot Rat" = "uniprot.rat")
   })
   
   main_logging <- function(message){
@@ -276,7 +359,11 @@ server <- function(input, output, session) {
       updateTabsetPanel(session, "mainTabset", "Plot")
     }
     a <- guide$get_next()
-    if(!is.null(a) && guide$get_next()$highlighted == "inference_options_div"){
+    # if(!is.null(a) && guide$get_next()$highlighted == "inference_options_div"){
+    #   #message("abcd")
+    #   guide$move_forward()
+    # }
+    if(!is.null(a) && guide$get_next()$highlighted == "phosphatase_options_div"){
       #message("abcd")
       guide$move_forward()
     }
@@ -284,7 +371,6 @@ server <- function(input, output, session) {
   
   current_message_type <- reactive({
     switch(as.numeric(input$message_type), "Feature Request", "Comment", "Bug Report")
-           
   })
   
   set_enabled_feature_suggestion_box <- function(enabled){
@@ -550,9 +636,13 @@ server <- function(input, output, session) {
     K$Activity = as.matrix(A)
     K$StdErr = as.matrix(S)
     K$ZScore = as.matrix(Z)
-    K$ZScore = as.matrix(Z)
+    #K$ZScore = as.matrix(Z)
     K$PValue = res$PValues
     K$FDR = res$QValues
+    
+    isPhosphatase = K$Type == "Phosphatase"
+    K$Activity[isPhosphatase] = -1 * K$Activity[isPhosphatase]
+    K$ZScore[isPhosphatase] = -1 * K$ZScore[isPhosphatase]
     
     #ready(TRUE)
     
@@ -571,12 +661,14 @@ server <- function(input, output, session) {
     NetworkData <- reactive_network()
     K = NetworkData$Kinase
     
+    Wks_depod = NetworkData$net$Wkin2site.depod
     Wks_psp = NetworkData$net$Wkin2site.psp
     Wks_signor = NetworkData$net$Wkin2site.signor
     
     Wkin2site <- selected_ks_network()
     
     wk2s = Wkin2site[, validSites];
+    Wks_depod = Wks_depod[, validSites]
     Wks_psp = Wks_psp[, validSites]
     Wks_signor = Wks_signor[, validSites]
     
@@ -584,13 +676,15 @@ server <- function(input, output, session) {
     i1 = indices %% nrow(wk2s)
     i2 = floor(indices/nrow(wk2s))+ 1
     
+    withinDepod = Wks_depod[indices]
     withinPSP = Wks_psp[indices]
-    datasource <- ifelse(withinPSP, "PhosphoSitePlus", "Signor")
+    datasource <- ifelse(withinDepod, "Depod", ifelse(withinPSP, "PhosphoSitePlus", "Signor"))
     
     KS = data.frame(
       KinID = K$KinaseID[i1],
       KinName = K$KinaseName[i1],
       KinGene = K$Gene[i1],
+      Type = K$Type[i1],
       SubsProtein = ST$Protein[i2],
       SubsGene = ST$Gene[i2],
       Position = ST$Position[i2],
@@ -624,7 +718,7 @@ server <- function(input, output, session) {
     
     Ks$Sorting = -1*Ks$Activity
     Ks$Yaxis = Ks$Activity
-    yaxisText = "Kinase Activity"
+    yaxisText = "Activity"
     showErrorBars = TRUE
     if(input$yaxis == "Z-Score"){
       Ks$Yaxis = Ks$ZScore
@@ -683,6 +777,8 @@ server <- function(input, output, session) {
   output$kinaseTable <- DT::renderDataTable(server = FALSE, {
     req(kinase_activities())
     K <- kinase_activities();
+    colnames(K)[colnames(K) == 'KinaseID'] <- 'UniprotID'
+    
     Ks <- K[!is.na(K$Activity),]
     si <- order(abs(Ks$ZScore), decreasing = TRUE)
     Ks <- Ks[si,]
@@ -703,6 +799,10 @@ server <- function(input, output, session) {
   output$kinasesubsTable <- DT::renderDataTable(server = FALSE, {
     req(kinase_subs_table())
     KS <- kinase_subs_table();
+    colnames(KS)[colnames(KS) == 'KinID'] <- 'UniprotID'
+    colnames(KS)[colnames(KS) == 'KinName'] <- 'Name'
+    colnames(KS)[colnames(KS) == 'KinGene'] <- 'Gene'
+    
     #Ks <- K[!is.na(K$Activity),]
     #si <- order(abs(Ks$ZScore), decreasing = TRUE)
     #Ks <- Ks[si,]

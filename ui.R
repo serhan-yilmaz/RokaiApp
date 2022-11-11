@@ -79,10 +79,11 @@ desc_text <- function(qtxt){
 
 
 dataset_version_text <- function(dataset, date, link){
+  id = paste(dataset, "txt", sep = "_");
   dataset <- paste(dataset, ":", sep = "")
   tags$tr(
     tags$td(tags$li(tags$a(dataset, href = link))), 
-    tags$td(date)
+    tags$td(tags$text(date, id = id))
   )
 }
 
@@ -248,6 +249,7 @@ about_tab <- function(){
         paper_txt("Licata, L. et al.", "2020", "SIGNOR 2.0, the SIGnaling network open resource 2.0: 2019 update.", "Nucleic acids research", "https://doi.org/10.1093/nar/gkz949", "48(D1), D504-D510"),
         paper_txt("Minguez, P. et al.", "2012", "PTMcode: a database of known and predicted functional associations between post-translational modifications in proteins.", "Nucleic acids research", "https://doi.org/10.1093/nar/gks1230", "41(D1), D306-D311"),
         paper_txt("Szklarczyk, D. et al.", "2014", "STRING v10: protein–protein interaction networks, integrated over the tree of life.", "Nucleic acids research", "https://doi.org/10.1093/nar/gku1003", "43(D1), D447-D452"),
+        paper_txt("Damle, N. P., & Köhn, M.", "2019", "The human DEPhOsphorylation Database DEPOD: 2019 update.", "Database", "https://doi.org/10.1093/database/baz133", ""),
         
         tags$h3("Acknowledgement", style="font-weight:bold;"),
         desc_text("This work was supported by National Institute of Health (NIH) grant R01-LM012980 from the National Libraries of Medicine.")
@@ -261,13 +263,27 @@ about_tab <- function(){
         #tags$p(),
         tags$h3("Dataset Versions", style="font-weight:bold;"),
         #desc_text("Last updated dates for the datasets used are as follows:")
+        tags$div(
+            style = "max-width: 300px;", 
+            helper(
+              selectInput("dataset_version_selection", "NetworkData: ", 
+                      choices = foList("v2.2.0 - Latest (November 2022)", 1, "v2.1.4 (May 2021)", 2), 
+                      selected = 1, selectize = F),
+              type = "markdown", id = "include_networkdata_version_helper", content = "networkdata_version"
+              ),
+            tippy_this("include_networkdata_version_helper", "<span style='font-size:14px; margin: 0px;'>Click to learn about the NetworkData.<span>", allowHTML = TRUE), 
+        ),
         desc_text("The versions (last modified dates) of the datasets used are as follows:"),
+        tags$div(
+          style="max-width:300px;",
         tags$table(
-          style="width:36%; font-size: 16px; margin-left: 22px;",
+          style="font-size: 16px; width: 100%; margin-left: 22px;",
+          dataset_version_text("Uniprot", "2022-10-04", "https://www.uniprot.org/"),
           dataset_version_text("PhosphoSitePlus", "2021-04-19", "https://www.phosphosite.org/"),
           dataset_version_text("Signor", "2021-05-21", "https://signor.uniroma2.it/"),
           dataset_version_text("STRING", "2018-12-20", "https://string-db.org/"),
           dataset_version_text("PTMcode", "2014-09-17", "https://ptmcode.embl.de/"),
+          dataset_version_text("DEPOD", "2019-03-01", "http://www.depod.org/"),
           # tags$tr(
           #   tags$td(tags$li("PhosphoSitePlus:")), 
           #   tags$td("2021-04-19")
@@ -284,7 +300,7 @@ about_tab <- function(){
           #   tags$td(tags$li("PTMcode:")), 
           #   tags$td("2014-09-17")
           # ),
-        )
+        ))
         # desc_text("PhosphoSitePlus: 2021-04-19"),
         # desc_text("Signor: 2021-05-21"),
         # desc_text("STRING: 2018-12-20"),
@@ -409,7 +425,7 @@ ui <- fluidPage(
           tags$style(".shiny-input-container {margin-bottom: 0px} #file1_progress { margin-bottom: 3px } .checkbox { margin-top: 0px}"),
           tags$style(".checkbox {margin-bottom: 0px;}"),
         ),
-        multiChoicePicker("refproteome", "Reference Proteome:", c("Uniprot Human", "Uniprot Mouse")),
+        multiChoicePicker("refproteome", "Reference Proteome:", c("Uniprot Human", "Uniprot Mouse", "Uniprot Rat")),
         tags$hr(style = "margin: 8px 0px 8px 0px;")
         ),
       #),
@@ -441,7 +457,22 @@ ui <- fluidPage(
     #  tippy("Hover me!", tooltip = "Hi, I'm the tooltip!"),
       multiChoicePicker("ksNetwork", "Kinase Substrate Dataset:", c("PhosphoSitePlus", "PSP+Signor"), "PSP+Signor"),
       multiChoicePicker("rokaiNetwork", "RoKAI Network:", c("KinaseSubstrate", "KS+PPI", "KS+PPI+SD", "KS+PPI+SD+CoEv"), "KS+PPI+SD+CoEv"),
-      checkboxInput("rokaiEnabled", "Use sites in functional neighborhood", TRUE),
+    checkboxInput("rokaiEnabled", "Use sites in functional neighborhood", TRUE),
+      #   tags$span("Include phosphatases in the analysis: "),
+      #   materialSwitch(inputId = "includePhosphatases", label = "", status = "warning", inline = T),
+      #   #tags$b(ls$HardcoreModeEnabledLabel, style = "color: orange;", id = "hardcore_enabled_label")
+      # )
+    
+    #materialSwitch(inputId = "includePhosphatases", label = "", status = "warning", inline = T), 
+      tags$hr(style = "margin: 1px 0px 1px 0px;"),
+      tags$div(id = "phosphatase_options_div", 
+        multiChoicePicker("phosphataseNetwork", "Phosphatase Substrate Dataset:", c("DEPOD"), "DEPOD"),
+        helper(
+          checkboxInput("includePhosphatases", "Include phosphatases in the analysis", TRUE),
+          type = "markdown", id = "include_phosphatases_helper_icon", content = "include_phosphatases"
+        ),
+        tippy_this("include_phosphatases_helper_icon", "<span style='font-size:14px; margin: 0px;'>Determines whether phosphatases should be analyzed alongside the kinases. Click to learn more. <span>", allowHTML = TRUE), 
+      ),
       #tags$hr(style = "margin: 8px 0px 8px 0px;")
       ),
    #   bsCollapsePanel("Title", 
@@ -483,6 +514,10 @@ tags$div(
     tags$a("https://rokai.io/explorer", href="https://rokai.io/explorer"),
     #"<serhan.yilmaz@case.edu>"
   )
+), 
+tags$div(
+  style = "margin-left: 14px;",
+ tags$text(style = "color:#404040;", "Rokai App is updated! Read about"), tags$a("the changes in v2.2.0", href = "https://github.com/serhan-yilmaz/RokaiApp/tree/master/docs/v2.2.0"),
 )
 #, verbatimTextOutput("text")
 #textOutput("text")
@@ -517,9 +552,9 @@ tags$div(
           fluidRow(
             column(width = 6, style = "padding: 8px;", fluidRow(id = "plot_sliders_div", 
             column(width = 6, style = "padding: 8px;", sliderInput("minnumsubs", "Min. number of substrates", 1, 10, 3, step = 1, width = "220px")), 
-            column(width= 6, style = "padding: 8px;", sliderInput("minzscore", "Min. absolute z-score", 0, 2, 1.25, step = 0.05, width = "220px"))
+            column(width= 6, style = "padding: 8px;", sliderInput("minzscore", "Min. absolute z-score", 0, 3, 1.5, step = 0.05, width = "220px"))
             )),
-            column(width = 3, style = "padding: 8px; padding-left: 16px;", multiChoicePicker("yaxis", "Plot Y-Axis:", c("Kinase Activity", "Z-Score"), isInline = "F")),
+            column(width = 3, style = "padding: 8px; padding-left: 16px;", multiChoicePicker("yaxis", "Plot Y-Axis:", c("Activity", "Z-Score"), isInline = "F")),
             column(width = 3, style = "padding: 8px;", tags$div(id = "plot_download_div", 
               downloadButton('downloadKinasePlotPNG', 'Download PNG'),
               tags$br(), 

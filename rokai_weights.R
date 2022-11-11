@@ -25,6 +25,7 @@ rokai_weights <- function(I, W, R) {
   F = Ainv + Ainv %*% S %*% Rc %*% Ainv
   # Rokai Weights - Inner function ends
   
+  #browser()
   Mrelevant2allnodes = sparseMatrix(
     i = 1:length(nodeIndices),
     j = nodeIndices, 
