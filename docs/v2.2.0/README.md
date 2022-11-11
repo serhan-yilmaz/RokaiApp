@@ -8,9 +8,14 @@ For this analysis, the phosphatase-substrate interactions in the [DEPOD database
 
 ### Updated Datasets - Latest Available
 All datasets from [PhosphoSitePlus](https://www.phosphosite.org/), [Signor](https://signor.uniroma2.it/), [STRING](https://string-db.org/) are updated with their latest release versions. For ``human`` network, the changes are as follows:
-
 ```
-Kinase-Substrate Interactions (PSP + Signor):  7749 -> 7780 interactions between 222 -> 234 Kinases and 106136 -> 106350 phosphosites
+Kinase-Substrate Interactions (PSP + Signor):  15897->16712 interactions between 390->404 Kinases and 240370->240731 phosphosites
+Protein-Protein Interactions (between kinases, STRING): 41478->45859 interactions
+```
+For ``mouse``, the changes are as follows:
+```
+Kinase-Substrate Interactions (PSP + Signor):  7449->7780 interactions between 222->234 Kinases and 106136->106350 phosphosites
+Protein-Protein Interactions (between kinases, STRING): 12668->18404 interactions
 ```
 
 ### Added Rat Reference Proteome
