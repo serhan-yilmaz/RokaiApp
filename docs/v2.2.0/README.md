@@ -62,7 +62,7 @@ runGitHub("rokaiapp", "serhan-yilmaz", ref = "v2.1.4")
 ### Upcoming
 
 #### Performing Bulk Computations
-In the next release, we are considering to add an option to perform bulk computations, running the analysis for multiple samples (i.e., multiple Quantification columns) and download the results (i.e., inferred activities table) at once for all samples. 
+In the next release, we are considering to add an option to perform bulk computations, running the analysis for multiple samples (i.e., multiple ``Quantification ``columns) and download the results (i.e., inferred activities table) at once for all samples. 
 
 #### Any Other Feedback is Welcome!
 Feel free to let us know what you think! You can contact us from ``serhan.yilmaz@case.edu`` or by [filling the Google survey](). Let us know what you would like to see in next versions of Rokai App.
