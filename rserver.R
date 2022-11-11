@@ -193,7 +193,7 @@ server <- function(input, output, session) {
   
   reactive_network_initial <- reactive({
     req(initialized())
-    message(input$dataset_version_selection)
+    #message(input$dataset_version_selection)
     flag_after_v2.2.0 = TRUE
     if(input$dataset_version_selection == 1){ # Latest
       switch (network_value(),
