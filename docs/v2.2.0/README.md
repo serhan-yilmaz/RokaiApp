@@ -64,3 +64,4 @@ runGitHub("rokaiapp", "serhan-yilmaz", ref = "v2.1.4")
 #### Performing Bulk Computations
 
 #### Any Other Feedback is Welcome!
+Feel free to let us know what you think! You can contact us from ``serhan.yilmaz@case.edu`` or [fill the Google survey](). Let us know what you would like to see in next versions of Rokai App.
