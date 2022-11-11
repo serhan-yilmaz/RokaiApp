@@ -6,8 +6,8 @@ Starting on Rokai App v2.2.0, there is now an option to analyze the phosphatases
 
 For this analysis, the phosphatase-substrate interactions in the [DEPOD database](http://depod.bioss.uni-freiburg.de/) are used. Overall, the number of interactions added to the Rokai network data is:
 ```
-For human, 1531 interactions between 77 Phosphatases and 478 phosphosites (within 244 proteins)
-For mouse, 740 interactions between 75 Phosphatases and 283 phosphosites (within 174 proteins)
+For human proteome, 1531 interactions between 77 Phosphatases and 478 phosphosites (within 244 proteins)
+For mouse proteome, 740 interactions between 75 Phosphatases and 283 phosphosites (within 174 proteins)
 ```
 ### Updated Datasets - Latest Available
 All datasets from [PhosphoSitePlus](https://www.phosphosite.org/), [Signor](https://signor.uniroma2.it/), [STRING](https://string-db.org/) are updated with their latest release versions. For ``human`` network, the changes are as follows:
