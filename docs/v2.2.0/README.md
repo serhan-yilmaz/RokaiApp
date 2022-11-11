@@ -39,7 +39,7 @@ Protein-Protein Interactions (between kinases, STRING): 816 interactions
 ### Additional
 
 #### Rokai-NetworkData available to download
-You can access the code used to preprocess the data from [Rokai-NetworkData github page](https://github.com/serhan-yilmaz/Rokai-NetworkData). The processed ``NetworkData`` is available to download in Matlab (``.mat``) and R (``.rds``) file formats for ``human``, ``mouse`` and ``rat`` species. 
+You can access the code used to preprocess the data from [Rokai-NetworkData github page](https://github.com/serhan-yilmaz/Rokai-NetworkData). The processed ``NetworkData`` is available to download in Matlab (``.mat``) and R (``.rds``) file formats for ``human``, ``mouse`` and ``rat`` species (see the [data releases](https://github.com/serhan-yilmaz/Rokai-NetworkData/releases)). 
 
 #### Interface updates
 There are a number of minor interface updates to make the results compatible with the addition of the phosphatase analysis. For example, in the plots, y-axis renamed as `Activity` instead of `Kinase Activity` and phosphatases are shown alongside the kinases, marked with ``Phospha-`` tag for easy visibility. In the tables, the ``Type`` column indicates whether a row corresponds to a kinase or a phosphatase. The columns in the table are also renamed to reflect that there are not only kinases in the results (e.g., ``KinID`` renamed as ``UniprotID``). The default and maximum values for ``Min. absolute z-score`` slider (for the filtering in the plots) is also changed to 1.5 and 3 (from 1.25 and 2 respectively). See the [release notes](https://github.com/serhan-yilmaz/RokaiApp/releases/tag/v2.2.0) for more details. 
