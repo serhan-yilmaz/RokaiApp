@@ -12,16 +12,16 @@ For mouse, 740 interactions between 75 Phosphatases and 283 phosphosites (within
 ### Updated Datasets - Latest Available
 All datasets from [PhosphoSitePlus](https://www.phosphosite.org/), [Signor](https://signor.uniroma2.it/), [STRING](https://string-db.org/) are updated with their latest release versions. For ``human`` network, the changes are as follows:
 ```
-Reference Proteome: 240370->240731 phosphosites within XXX->19832 proteins
+Reference Proteome: 240370->240731 phosphosites within 19837->19832 proteins
 Kinase-Substrate Interactions (PSP+Signor): 15897->16712 interactions, 
-   between 390->404 Kinases and XXX->11017 phosphosites (within XXX->3085 proteins)
+   between 390->404 Kinases and 10531->11017 phosphosites (within 2968->3085 proteins)
 Protein-Protein Interactions (between kinases, STRING): 41478->45859 interactions
 ```
 For ``mouse``, the changes are as follows:
 ```
-Reference proteome: 106136->106350 phosphosites within XXX->XXX proteins
+Reference proteome: 106136->106350 phosphosites within 14345->14350 proteins
 Kinase-Substrate Interactions (PSP+Signor): 7449->7780 interactions,
-   between 222->234 Kinases and XXX->5308 phosphosites (within XXX->1826 proteins)
+   between 222->234 Kinases and 5103->5308 phosphosites (within 1771->1826 proteins)
 Protein-Protein Interactions (between kinases, STRING): 12668->18404 interactions
 ```
 
@@ -29,6 +29,7 @@ Protein-Protein Interactions (between kinases, STRING): 12668->18404 interaction
 
 For ``rat``, the number of interactions in the network are as follows:
 ```
+Reference proteome: 32524 phosphosites within 7402 proteins
 Kinase-Substrate Interactions (PSP+Signor): 3992 interactions between 103 Kinases and 2747 phosphosites (within 923 proteins)
 Phosphatase-Substrate Interactions (DEPOD): 616 interactions between 67 Phosphatases and 226 phosphosites (within 141 proteins)
 Protein-Protein Interactions (between kinases, STRING): 816 interactions
