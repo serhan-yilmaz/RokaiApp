@@ -7,6 +7,8 @@ library(cicerone)
 library(shinyjs)
 library(shinytoastr)
 library(shinylogs)
+library(rjson)
+library(stringr)
 
 library(ids)
 
@@ -42,6 +44,21 @@ withConsoleRedirect <- function(containerId, expr) {
     )
   }
   results
+}
+
+
+tryCatch({
+  library(rjson)
+  email_credentials = fromJSON(file = "email/credentials.json")
+  options(EMAIL_AVAILABLE = TRUE)
+}, 
+  error = function(e){options(EMAIL_AVAILABLE = FALSE)},
+  warning = function(e){}
+)
+
+EMAIL_AVAILABLE = getOption("EMAIL_AVAILABLE")
+if(is.null(EMAIL_AVAILABLE)){
+  EMAIL_AVAILABLE = FALSE
 }
 
 library(cicerone)
@@ -301,6 +318,8 @@ server <- function(input, output, session) {
            "Uniprot Rat" = "uniprot.rat")
   })
   
+  source("send_email.R", local = TRUE)
+  
   main_logging <- function(message){
     filepath = paste("logs/combined_log_", version_text(), ".txt", sep = "")
     if(dir.exists("logs/")){
@@ -393,11 +412,19 @@ server <- function(input, output, session) {
   
   observeEvent(input$buttonLeaveFeedback, {
     if(nchar(input$textinput_message) > 0){
-      main_logging(paste("Left a Feedback - Category: ", current_message_type(), sep =))
-      feedback_logging(paste(current_message_type(), " - Name: ", input$textinput_name, ", Org: ", input$textinput_org, ", Email: ", input$textinput_email, "\nMessage: ", input$textinput_message, sep = ""))
+      category = current_message_type()
+      name = input$textinput_name
+      org = input$textinput_org
+      email = input$textinput_email
+      message = input$textinput_message
+      main_logging(paste("Left a Feedback - Category: ", category, sep =))
+      feedback_logging(paste(current_message_type(), " - Name: ", name, ", Org: ", org, ", Email: ", email, "\nMessage: ", message, sep = ""))
       set_enabled_feature_suggestion_box(enabled=F)
       delay(300, set_enabled_feature_suggestion_box(enabled=T))
       delay(300, toastr_success("Your response has been saved. Thank you!", closeButton = F))
+      
+      version = version_text()
+      foSendEmail(category, name, org, email, message, version)
     } else {
       toastr_warning("The message field cannot be empty.", closeButton = F)
     }
@@ -482,6 +509,10 @@ server <- function(input, output, session) {
     
     if((myvalue() == "upload") && (nnzero(T$Quantification < 0) == 0)){
       toastr_warning("Warning! No negatives values are detected in input data. Please make sure that the input quantifications are log transformed.", closeButton = T, timeOut = 50000, extendedTimeOut = 50000)
+    } else {
+      if(identical(myvalue(), "upload")){
+        main_logging("Uploaded dataset successfully parsed")
+      }
     }
     
     return (X)
@@ -743,6 +774,10 @@ server <- function(input, output, session) {
     p <- p + scale_fill_distiller(palette = "RdYlBu", type = "div", limit = c_limit * c(-1, 1))
     
     p <- p + labs(fill = "Z-Score", x = "", y = yaxisText)
+    
+    if(input$plotlayout == "Vertical"){
+      p <- p + coord_flip()
+    }
     return (p)
   })
   
@@ -762,7 +797,13 @@ server <- function(input, output, session) {
     filename = function() { paste('kinase-visualization.png', sep='') },
     content = function(file) {
       h = 4.1
-      ggsave(file, plot = kinasePlot(), device = "png", width=3*h, height=h)
+      w_mult = 1
+      h_mult = 1
+      if(input$plotlayout == "Vertical"){
+        w_mult = 1/2
+        h_mult = 1.5
+      }
+      ggsave(file, plot = kinasePlot(), device = "png", width=3*h, height=h*h_mult, bg='white')
     }
   )
   
@@ -770,7 +811,13 @@ server <- function(input, output, session) {
     filename = function() { paste('kinase-visualization.pdf', sep='') },
     content = function(file) {
       h = 4.6
-      ggsave(file, plot = kinasePlot(), device = "pdf", width=3*h, height=h)
+      w_mult = 1
+      h_mult = 1
+      if(input$plotlayout == "Vertical"){
+        w_mult = 1/2
+        h_mult = 1.5
+      }
+      ggsave(file, plot = kinasePlot(), device = "pdf", width=3*h*w_mult, height=h*h_mult)
     }
   )
   

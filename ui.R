@@ -554,7 +554,12 @@ tags$div(
             column(width = 6, style = "padding: 8px;", sliderInput("minnumsubs", "Min. number of substrates", 1, 10, 3, step = 1, width = "220px")), 
             column(width= 6, style = "padding: 8px;", sliderInput("minzscore", "Min. absolute z-score", 0, 3, 1.5, step = 0.05, width = "220px"))
             )),
-            column(width = 3, style = "padding: 8px; padding-left: 16px;", multiChoicePicker("yaxis", "Plot Y-Axis:", c("Activity", "Z-Score"), isInline = "F")),
+            column(width = 3, style = "padding: 8px; padding-left: 16px;", 
+                   tags$div(
+                     multiChoicePicker("yaxis", "Plot Y-Axis:", c("Activity", "Z-Score"), isInline = "F"),
+                     tags$div(style = "margin-top: 2px;", 
+                     multiChoicePicker("plotlayout", "Plot Layout:", c("Horizontal", "Vertical"), isInline = "F"))
+                     )),
             column(width = 3, style = "padding: 8px;", tags$div(id = "plot_download_div", 
               downloadButton('downloadKinasePlotPNG', 'Download PNG'),
               tags$br(), 
