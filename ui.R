@@ -267,8 +267,8 @@ about_tab <- function(){
             style = "max-width: 300px;", 
             helper(
               selectInput("dataset_version_selection", "NetworkData: ", 
-                      choices = foList("v2.2.0 - Latest (November 2022)", 1, "v2.1.4 (May 2021)", 2), 
-                      selected = 1, selectize = F),
+                      choices = foList("v2.3.0 - Latest (August 2024)", "latest", "v2.2.0 (November 2022)", "v2.2.0", "v2.1.4 (May 2021)", "v2.1.4"), 
+                      selected = "latest", selectize = F),
               type = "markdown", id = "include_networkdata_version_helper", content = "networkdata_version"
               ),
             tippy_this("include_networkdata_version_helper", "<span style='font-size:14px; margin: 0px;'>Click to learn about the NetworkData.<span>", allowHTML = TRUE), 

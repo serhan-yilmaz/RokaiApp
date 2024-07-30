@@ -212,28 +212,71 @@ server <- function(input, output, session) {
     req(initialized())
     #message(input$dataset_version_selection)
     flag_after_v2.2.0 = TRUE
-    if(input$dataset_version_selection == 1){ # Latest
-      switch (network_value(),
-              "uniprot.human" = fname <- "rokai_network_data_uniprotkb_human.rds",
-              "uniprot.mouse" = fname <- "rokai_network_data_uniprotkb_mouse.rds",
-              "uniprot.rat" = fname <- "rokai_network_data_uniprotkb_rat.rds",
-              validate(
-                need(FALSE, "Invalid network state.")
-              )
-      )
-    } else {
-      switch (network_value(),
-              "uniprot.human" = fname <- "rokai_network_data_uniprotkb_2021.rds",
-              "uniprot.mouse" = fname <- "rokai_network_data_uniprotkb_mouse_2021.rds",
-              "uniprot.rat" = validate(
-                need(FALSE, "Rat reference proteome is only available in NetworkData versions after v2.2.0.")
-              ), 
-              validate(
-                need(FALSE, "Invalid network state.")
-              )
-      )
-      flag_after_v2.2.0 = FALSE
-    }
+    switch(input$dataset_version_selection, 
+           "latest" = {
+             switch (network_value(),
+                     "uniprot.human" = fname <- "rokai_network_data_uniprotkb_human.rds",
+                     "uniprot.mouse" = fname <- "rokai_network_data_uniprotkb_mouse.rds",
+                     "uniprot.rat" = fname <- "rokai_network_data_uniprotkb_rat.rds",
+                     validate(
+                       need(FALSE, "Invalid network state.")
+                     )
+             )
+           }, 
+           "v2.2.0" = {
+             switch (network_value(),
+                     "uniprot.human" = fname <- "rokai_network_data_uniprotkb_human_2022.rds",
+                     "uniprot.mouse" = fname <- "rokai_network_data_uniprotkb_mouse_2022.rds",
+                     "uniprot.rat" = fname <- "rokai_network_data_uniprotkb_rat_2022.rds",
+                     validate(
+                       need(FALSE, "Invalid network state.")
+                     )
+             )
+           }, 
+           "v2.1.4" = {
+             flag_after_v2.2.0 <- FALSE
+             switch (network_value(),
+                     "uniprot.human" = fname <- "rokai_network_data_uniprotkb_2021.rds",
+                     "uniprot.mouse" = fname <- "rokai_network_data_uniprotkb_mouse_2021.rds",
+                     "uniprot.rat" = {
+                       validate(
+                        need(FALSE, "Rat reference proteome is only available in NetworkData versions after v2.2.0.")
+                       )
+                     }, 
+                     validate(
+                       need(FALSE, "Invalid network state.")
+                     )
+             )
+           }, 
+           {
+             validate(
+               need(FALSE, "Invalid network version.")
+             )
+           }
+           )
+    
+    # if(input$dataset_version_selection == 1){ # Latest
+    #   switch (network_value(),
+    #           "uniprot.human" = fname <- "rokai_network_data_uniprotkb_human.rds",
+    #           "uniprot.mouse" = fname <- "rokai_network_data_uniprotkb_mouse.rds",
+    #           "uniprot.rat" = fname <- "rokai_network_data_uniprotkb_rat.rds",
+    #           validate(
+    #             need(FALSE, "Invalid network state.")
+    #           )
+    #   )
+    # } else {
+    #   switch (network_value(),
+    #           "uniprot.human" = fname <- "rokai_network_data_uniprotkb_2021.rds",
+    #           "uniprot.mouse" = fname <- "rokai_network_data_uniprotkb_mouse_2021.rds",
+    #           "uniprot.rat" = validate(
+    #             need(FALSE, "Rat reference proteome is only available in NetworkData versions after v2.2.0.")
+    #           ), 
+    #           validate(
+    #             need(FALSE, "Invalid network state.")
+    #           )
+    #   )
+    #   flag_after_v2.2.0 = FALSE
+    # }
     NetworkData <- readRDS(paste("data/", fname, sep =""));
     NetworkData$Kinase$Type = "Kinase"
     nKinase = nrow(NetworkData$Kinase)
@@ -496,7 +539,6 @@ server <- function(input, output, session) {
     validate(
       need(nrow(T)>0, "File format error: There are no rows having non-missing values in the Quantification column.")
     )
-
     indices = match(T$ID, NetworkData$Site$Identifier)
     valids = !is.na(indices);
     X = rep(NA, nrow(NetworkData$Site))
